@@ -4,3 +4,9 @@ cmake-build-debug-clang
 cmake-build-release
 cmake-build-release-clang
 .idea
+/build-macos-arm64/
+__pycache__/
+
+# Local research output and authentication inputs are never published.
+/docs/research/
+/tools/netease_auth/private/

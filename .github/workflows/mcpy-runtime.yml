@@ -1,0 +1,37 @@
+name: mcpy macOS runtime artifact
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Immutable runtime version (e.g. 0.1.0-preview.1)
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare build tools
+        run: |
+          test "$(uname -m)" = arm64
+          command -v cmake || brew install cmake
+          command -v ninja || brew install ninja
+      - name: Build and audit portable runtime
+        run: python3 tools/build_macos_runtime.py --output build-macos-arm64/McpyRuntime.app
+      - name: Assemble runtime, corresponding source and catalog
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: python3 tools/package_macos_release.py --runtime build-macos-arm64/McpyRuntime.app --version "$RELEASE_VERSION" --output build-macos-arm64/release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mcpy-macos-arm64-${{ inputs.version }}
+          path: build-macos-arm64/release/
+          if-no-files-found: error
