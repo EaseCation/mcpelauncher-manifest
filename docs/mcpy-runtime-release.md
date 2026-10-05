@@ -23,7 +23,7 @@ mcpy --local engine doctor --json
 mcpy --local --project /path/to/addon run --detach --json
 ```
 
-省略 `--apk` 会从网易官方接口解析匹配版本并下载；暂只接受配置锁定的 3.9.100.297020。最新版 3.10 不会被静默替换。官方旧版下架时提示用户提供匹配 APK。自动下载使用官网公开的 CDN 签名规则，无需 MPay 登录。
+省略 `--apk` 会从网易官方接口解析匹配版本并下载；按所选运行包 profile 锁定版本；默认配置是 3.9.100.297020，3.10.100.299889 可选用 `tools/macos_runtime_profile_3.10.json` 作为默认下载配置，同一原生运行包通过结构规则服务两者，见 [3.10 配置](netease-3.10.md)。不同版本不会被静默替换。官方旧版下架时提示用户提供匹配 APK。自动下载使用官网公开的 CDN 签名规则，无需 MPay 登录。
 
 默认资源根目录 `~/Library/Application Support/mcpy`；可用 `MCPY_ENGINE_HOME` 隔离测试。`MCPY_RUNTIME_CATALOG` 设置发行目录。下载支持断点续传，完整 SHA-256 验证后才提取；运行包做签名、架构及逐文件校验，APK 做整体摘要、资源数量/大小和关键文件校验。中断可以重试；损坏资源在确认无使用进程后重新组装，世界位于项目 `.runtime/macos/instances` 中。现有实例固定运行包和 APK，默认重开原世界；升级需选择新目录并显式 `run --new`。
 
@@ -36,3 +36,5 @@ mcpy --local --project /path/to/addon run --detach --json
 `product-reopen-check.json` 验证重复 run 复用会话、客户端请求在启动期排队并保留命名空间、服务端 ExtraData 保存重开和退出。`product-cancel-loading.json` 在数据库已打开、尚未出现 HUD 时取消，最终正常保存且 exit_code=0。此前诊断用 get_level_id 在加载中返回 -1 的失败实验已保留，新版加入就绪条件；同时修复在加载途中过早 quit 的竞态。最终无游戏/worker 残留。
 
 测试：两个原生 CTest 通过；mcpy 针对性 120 个用例运行成功（其中 4 个跳过），覆盖后端路由、安装/修复、断点续传、TUI、会话、远程和 Python 通道。扩展全量 430 个用例在此 Mac 上仍有 Windows/PyQt/MCS 专用测试不通过（9 error、1 failure、23 skip），不能声称全平台全量测试通过。Windows 实机、最低 macOS、公开下载后的签名体验和 GitHub CI 尚待对应环境验证。已构建 wheel，并从仓库外加载它运行 engine doctor 成功；仓库与安装目录中的 Skill 验证通过。
+
+新运行包在安装阶段执行[二进制结构兼容检查](automatic-binary-compatibility.md)，不按版本号选择地址表。核心结构无法确认时保留旧版本并输出诊断；JSON UI 等可选能力可独立降级。APK 的下载选择仍由 catalog/profile 固定，尚未实现自动选择官方未来最新版本。

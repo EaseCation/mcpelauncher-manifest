@@ -13,8 +13,10 @@ python3 tools/build_macos_runtime.py --output build-macos-arm64/McpyRuntime.app
 The adaptation branch is `netease-macos-arm64` (the fork's default branch).
 Submodules are pinned by commit: modified components use the public EaseCation
 forks; unchanged components continue to use their original upstream repositories.
-See [fork layout](docs/fork-layout.md), [runtime packaging](docs/mcpy-runtime-release.md)
-and [offline developer worlds](docs/netease-dev-offline.md).
+See [fork layout](docs/fork-layout.md), [runtime packaging](docs/mcpy-runtime-release.md),
+[offline developer worlds](docs/netease-dev-offline.md), and the optional
+[3.10 profile](docs/netease-3.10.md). Cross-version recognition is described in
+[structural compatibility](docs/automatic-binary-compatibility.md).
 
 The build requires Apple Silicon, Xcode command-line tools, Python, CMake and
 Ninja. The built runtime does not require Homebrew or another installed Launcher.
