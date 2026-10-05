@@ -31,7 +31,10 @@ def rpc(module, function, args, instance=False):
     return dict(module_name=module, func_name=function, args=args, use_instance=instance)
 
 
-def world_commands(data, world_id, resource_packs=None, behavior_packs=None, world_name='本地开发测试'):
+def world_commands(data, config):
+    from netease_cppconfig import creation_arguments, world_info
+    info = world_info(config)
+    world_id, world_name = info['level_id'], info['name']
     # A normal client-Python request with an explicit, side-effect-free readiness
     # predicate. Other requests can execute while the startup recipe is waiting.
     scene = "getattr(__import__('sys').modules.get('launcher.launcher'), 'base_scene', None)"
@@ -41,11 +44,10 @@ def world_commands(data, world_id, resource_packs=None, behavior_packs=None, wor
     commands = [hide_login]
     create = None
     if not (data/'minecraftWorlds'/world_id/'level.dat').is_file():
-        info = {'basic_info': {'game_type': 1, 'difficulty': 0, 'level_name': world_name},
-                'cheat_info': {'enable': True}}
-        create = "(__import__('world').create_world(*" + repr([world_id, 2, False, False, '20261004']) + ") and " \
-                 "__import__('world').set_world_info(*" + repr([world_id, info]) + "))"
-    play_args = [world_id, world_name, resource_packs or [], behavior_packs or [],
+        args, settings = creation_arguments(config)
+        create = "(__import__('world').create_world(*" + repr(args) + ") and " \
+                 "__import__('world').set_world_info(*" + repr([world_id, settings]) + "))"
+    play_args = [world_id, world_name, info['resource_packs'], info['behavior_packs'],
                  {'user_name': 'LocalDev', 'user_id': '0'}, None, {'multiplayer_game_type': 0}, None]
     # Set the complete offline state in a single game-thread dispatch. Spreading
     # these transitions over ticks races the Cocos startup failure callbacks.
@@ -60,15 +62,19 @@ def world_commands(data, world_id, resource_packs=None, behavior_packs=None, wor
     return commands
 
 
-def install_source_addons(addons, installed, link=False):
+def install_source_addons(addons, installed, link=False, pack_paths=None):
     """Install mcpy build directories; preserve source projects and stable UUIDs."""
     resources, behaviors, roots = [], [], []
     seen = set()
+    if pack_paths is not None:
+        addons = [None]
     for addon in addons:
-        addon = addon.resolve()
+        addon = addon.resolve() if addon is not None else None
         found = False
-        for kind, names in [('behavior', behaviors), ('resource', resources)]:
-            source = addon / (kind + '_pack')
+        paths = [(kind, Path(path)) for kind, paths in pack_paths.items() for path in paths] if pack_paths is not None else [
+            (kind, addon/(kind+'_pack')) for kind in ('behavior', 'resource')]
+        for kind, source in paths:
+            names = behaviors if kind == 'behavior' else resources
             if not source.is_dir():
                 continue
             manifest = json.loads((source/'manifest.json').read_text())
@@ -95,7 +101,7 @@ def install_source_addons(addons, installed, link=False):
             if kind == 'behavior':
                 roots.append(str(target))
             found = True
-        if not found:
+        if not found and pack_paths is None:
             raise ValueError('--source-addon requires an assembled addon with behavior_pack/resource_pack: ' + str(addon))
     return resources, behaviors, roots
 
@@ -131,7 +137,18 @@ def prepare(args):
     for name in ['vanilla.mcp', 'netease_resource_packs.json', 'client_cfg.json', 'rnconfig.json']:
         if not (installed/name).exists():
             shutil.copy2(game/'assets/assets'/name, installed/name)
-    resources, behaviors, source_roots = install_source_addons(args.source_addon, installed, args.link_source_addons)
+    config = None
+    if args.cppconfig:
+        from netease_cppconfig import world_info
+        config = json.loads(args.cppconfig.read_text(encoding='utf-8-sig'))
+        info = world_info(config)
+        for field in ('behavior_packs', 'resource_packs'):
+            if any(not Path(p).is_dir() for p in info[field]):
+                raise ValueError('Missing cppconfig pack directory: ' + field)
+        paths = {'behavior': info['behavior_packs'], 'resource': info['resource_packs']}
+    else:
+        paths = None
+    resources, behaviors, source_roots = install_source_addons(args.source_addon, installed, args.link_source_addons, paths)
     compatibility = args.compat_report or cache/'developer-compatibility.json'
     if args.compat_report is None:
         # Version-independent, bounded static recognition before any game code runs.
@@ -142,7 +159,16 @@ def prepare(args):
         result['rules_sha256']=hashlib.sha256(rule_file.read_bytes()).hexdigest()
         compatibility.write_text(json.dumps(result)+'\n')
     args.compat_report=compatibility.resolve()
-    commands = [] if args.online else world_commands(data, args.world_id, resources, behaviors, args.world_name)
+    if config is None:
+        # Compatibility for standalone diagnostics and older mcpy sessions only.
+        config = {'world_info': {'level_id': args.world_id, 'name': args.world_name,
+                  'world_type': 2, 'seed': '20261004', 'start_with_map': False,
+                  'bonus_items': False, 'game_type': 1, 'difficulty': 0,
+                  'permission_level': 1, 'cheat': True, 'cheat_info': {},
+                  'resource_packs': [], 'behavior_packs': []}}
+    from netease_cppconfig import with_installed_packs
+    config = with_installed_packs(config, resources, behaviors)
+    commands = [] if args.online else world_commands(data, config)
     if source_roots:
         loader = installed/'developer_source_loader.py'
         shutil.copy2(Path(__file__).with_name('netease_source_loader.py'), loader)
@@ -169,6 +195,7 @@ def launch_command(game, data, cache, client, angle, commands, session=None, deb
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--cppconfig', type=Path, help='Instance MC Studio cppconfig; creates only missing worlds')
     parser.add_argument('--compat-report', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--apk', type=Path, help='Extract developer APK into an empty game directory')
     parser.add_argument('--game-dir', type=Path, default=RUNTIME/'game')
@@ -198,6 +225,8 @@ def main():
     args.angle_dir = args.angle_dir or args.runtime/'Contents/Frameworks'
     if args.online and args.debug_loopback:
         parser.error('--online and --debug-loopback are mutually exclusive')
+    if args.cppconfig and (args.source_addon or args.online or args.commands_json):
+        parser.error('--cppconfig is offline-only and owns the addon references and startup sequence')
     if args.source_addon and (args.online or args.commands_json):
         parser.error('--source-addon is offline-only and cannot be combined with --commands-json')
     runtime = ROOT/'build-macos-arm64/netease-online' if args.online else ROOT/'build-macos-arm64/netease-metal' if args.angle_backend == 'metal' else ROOT/'build-macos-arm64/netease-debug' if args.debug_loopback else RUNTIME
@@ -260,6 +289,10 @@ def main():
         wrapper = [sys.executable, str(Path(__file__).resolve()), '--game-dir', str(game), '--data-dir', str(data),
                    '--cache-dir', str(cache), '--client', str(mac/'mcpelauncher-client'), '--angle-dir', str(app/'Contents/Frameworks'),
                    '--world-id', args.world_id, '--world-name', args.world_name, '--log', str(log), '--exec-client']
+        if args.cppconfig:
+            wrapper += ['--cppconfig', str(args.cppconfig.resolve())]
+        if args.compat_report:
+            wrapper += ['--compat-report', str(args.compat_report)]
         if args.commands_json:
             wrapper += ['--commands-json', str(args.commands_json.resolve())]
         if args.online:

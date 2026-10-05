@@ -112,3 +112,14 @@ ctest --test-dir build-macos-arm64 --output-on-failure -R '^libc-compat-smoke$'
 - 当前只验证这份 arm64 开发者 APK；升级后需重新检查 JNI/桥接协议和测试返回值。
 
 早期正式版对照与入口定位见 `netease-arm64-investigation.md`。其“未进入世界”描述仅代表第一阶段。
+
+## 实例 cppconfig 入口
+
+mcpy 的新版运行包通过 `--cppconfig /path/to/instance.cppconfig` 传递世界设置和
+行为包/资源包路径，复用 MC Studio 的 world_info。适配器负责安装 pack 并转换
+为 Android 的包标识；不再从单独的 world-id/world-name/source-addon 参数拼装
+产品启动配置。原有独立诊断命令仍可使用旧参数。
+
+创建时调用 world.create_world/set_world_info；已有 level.dat 时只打开世界，保留
+游戏内保存的模式、难度及规则。cppconfig 中启用尚未验证的实验玩法或 fancy_bubbles
+会明确报错，不静默忽略。该入口不改变现有 Python 调试、日志、保存退出和热更机制。
