@@ -18,6 +18,8 @@ import sys
 import zipfile
 import uuid
 
+sys.dont_write_bytecode = True
+
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = ROOT / 'build-macos-arm64/netease-dev'
 BUNDLED_RUNTIME = Path(__file__).resolve().parents[3] if (Path(__file__).resolve().parents[2]/'MacOS/mcpelauncher-client').is_file() else None
@@ -130,6 +132,16 @@ def prepare(args):
         if not (installed/name).exists():
             shutil.copy2(game/'assets/assets'/name, installed/name)
     resources, behaviors, source_roots = install_source_addons(args.source_addon, installed, args.link_source_addons)
+    compatibility = args.compat_report or cache/'developer-compatibility.json'
+    if args.compat_report is None:
+        # Version-independent, bounded static recognition before any game code runs.
+        from analyze_developer_binary import Resolver
+        import hashlib
+        rule_file=Path(__file__).with_name('developer_binary_rules.json')
+        result=Resolver(game/'lib/arm64-v8a/libminecraftpe.so', json.loads(rule_file.read_text())).resolve()
+        result['rules_sha256']=hashlib.sha256(rule_file.read_bytes()).hexdigest()
+        compatibility.write_text(json.dumps(result)+'\n')
+    args.compat_report=compatibility.resolve()
     commands = [] if args.online else world_commands(data, args.world_id, resources, behaviors, args.world_name)
     if source_roots:
         loader = installed/'developer_source_loader.py'
@@ -157,6 +169,7 @@ def launch_command(game, data, cache, client, angle, commands, session=None, deb
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--compat-report', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--apk', type=Path, help='Extract developer APK into an empty game directory')
     parser.add_argument('--game-dir', type=Path, default=RUNTIME/'game')
     parser.add_argument('--data-dir', type=Path)
@@ -216,6 +229,7 @@ def main():
     log = args.log.resolve()
     log.parent.mkdir(parents=True, exist_ok=True)
     command = launch_command(game, data, cache, client, angle, commands, args.session_file.resolve() if args.online else None, args.debug_loopback, args.angle_backend)
+    command += ['--netease-compat', str(args.compat_report)]
     (log.parent/'commands.json').write_text(json.dumps(commands, ensure_ascii=False, indent=2)+'\n')
     if args.make_app:
         app_name = 'NetEase Online Test' if args.online else 'NetEase Metal Test' if args.angle_backend == 'metal' else 'NetEase Debug Test' if args.debug_loopback else 'NetEase Developer Test'

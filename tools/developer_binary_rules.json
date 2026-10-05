@@ -1,0 +1,1975 @@
+{
+  "schema": 1,
+  "family": "android-python27-scalar-dispatch-v1",
+  "normalization": "aarch64-address-fields-v1",
+  "dispatcher": {
+    "size": 85672,
+    "digest": "3e877559047919e59a0b7f6d6264733160a26ae7cdaf5425452acadb73e2b7f5",
+    "anchor": "fc6fbaa9fa6701a9f85f02a9f65703a9f44f04a9fd7b05a9fd430191ff0740d1ff830ed1",
+    "enter": 32,
+    "leave": 85640,
+    "patches": [
+      {
+        "offset": 2348,
+        "kind": "gpr",
+        "register_xor": 2,
+        "scratch": 16
+      },
+      {
+        "offset": 2352,
+        "kind": "gpr",
+        "register_xor": 2,
+        "scratch": 16
+      },
+      {
+        "offset": 7664,
+        "kind": "scalar"
+      },
+      {
+        "offset": 8072,
+        "kind": "scalar"
+      },
+      {
+        "offset": 8184,
+        "kind": "scalar"
+      },
+      {
+        "offset": 8344,
+        "kind": "scalar"
+      },
+      {
+        "offset": 8548,
+        "kind": "scalar"
+      },
+      {
+        "offset": 8660,
+        "kind": "scalar"
+      },
+      {
+        "offset": 8876,
+        "kind": "scalar"
+      },
+      {
+        "offset": 8988,
+        "kind": "scalar"
+      },
+      {
+        "offset": 9204,
+        "kind": "scalar"
+      },
+      {
+        "offset": 9316,
+        "kind": "scalar"
+      },
+      {
+        "offset": 9484,
+        "kind": "scalar"
+      },
+      {
+        "offset": 9648,
+        "kind": "scalar"
+      },
+      {
+        "offset": 9760,
+        "kind": "scalar"
+      },
+      {
+        "offset": 9944,
+        "kind": "scalar"
+      },
+      {
+        "offset": 10052,
+        "kind": "scalar"
+      },
+      {
+        "offset": 10180,
+        "kind": "scalar"
+      },
+      {
+        "offset": 10272,
+        "kind": "scalar"
+      },
+      {
+        "offset": 10436,
+        "kind": "scalar"
+      },
+      {
+        "offset": 10548,
+        "kind": "scalar"
+      },
+      {
+        "offset": 10768,
+        "kind": "scalar"
+      },
+      {
+        "offset": 10880,
+        "kind": "scalar"
+      },
+      {
+        "offset": 11016,
+        "kind": "scalar"
+      },
+      {
+        "offset": 11144,
+        "kind": "scalar"
+      },
+      {
+        "offset": 11256,
+        "kind": "scalar"
+      },
+      {
+        "offset": 11452,
+        "kind": "scalar"
+      },
+      {
+        "offset": 11564,
+        "kind": "scalar"
+      },
+      {
+        "offset": 11764,
+        "kind": "scalar"
+      },
+      {
+        "offset": 11876,
+        "kind": "scalar"
+      },
+      {
+        "offset": 12064,
+        "kind": "scalar"
+      },
+      {
+        "offset": 12176,
+        "kind": "scalar"
+      },
+      {
+        "offset": 12332,
+        "kind": "scalar"
+      },
+      {
+        "offset": 12424,
+        "kind": "scalar"
+      },
+      {
+        "offset": 12584,
+        "kind": "scalar"
+      },
+      {
+        "offset": 12696,
+        "kind": "scalar"
+      },
+      {
+        "offset": 12916,
+        "kind": "scalar"
+      },
+      {
+        "offset": 13028,
+        "kind": "scalar"
+      },
+      {
+        "offset": 13216,
+        "kind": "scalar"
+      },
+      {
+        "offset": 13328,
+        "kind": "scalar"
+      },
+      {
+        "offset": 13544,
+        "kind": "scalar"
+      },
+      {
+        "offset": 13656,
+        "kind": "scalar"
+      },
+      {
+        "offset": 13868,
+        "kind": "scalar"
+      },
+      {
+        "offset": 13980,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14144,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14236,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14360,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14472,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14724,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14836,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14972,
+        "kind": "scalar"
+      },
+      {
+        "offset": 14996,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 15000,
+        "kind": "scalar"
+      },
+      {
+        "offset": 15136,
+        "kind": "gpr",
+        "register_xor": 131072,
+        "scratch": 16
+      },
+      {
+        "offset": 15288,
+        "kind": "scalar"
+      },
+      {
+        "offset": 15400,
+        "kind": "scalar"
+      },
+      {
+        "offset": 15528,
+        "kind": "scalar"
+      },
+      {
+        "offset": 15704,
+        "kind": "scalar"
+      },
+      {
+        "offset": 15916,
+        "kind": "scalar"
+      },
+      {
+        "offset": 16028,
+        "kind": "scalar"
+      },
+      {
+        "offset": 16304,
+        "kind": "scalar"
+      },
+      {
+        "offset": 16416,
+        "kind": "scalar"
+      },
+      {
+        "offset": 16616,
+        "kind": "scalar"
+      },
+      {
+        "offset": 16728,
+        "kind": "scalar"
+      },
+      {
+        "offset": 16940,
+        "kind": "scalar"
+      },
+      {
+        "offset": 17052,
+        "kind": "scalar"
+      },
+      {
+        "offset": 17388,
+        "kind": "scalar"
+      },
+      {
+        "offset": 17500,
+        "kind": "scalar"
+      },
+      {
+        "offset": 17696,
+        "kind": "scalar"
+      },
+      {
+        "offset": 17808,
+        "kind": "scalar"
+      },
+      {
+        "offset": 17944,
+        "kind": "scalar"
+      },
+      {
+        "offset": 18056,
+        "kind": "scalar"
+      },
+      {
+        "offset": 18304,
+        "kind": "scalar"
+      },
+      {
+        "offset": 18416,
+        "kind": "scalar"
+      },
+      {
+        "offset": 18540,
+        "kind": "scalar"
+      },
+      {
+        "offset": 18812,
+        "kind": "scalar"
+      },
+      {
+        "offset": 19184,
+        "kind": "scalar"
+      },
+      {
+        "offset": 19296,
+        "kind": "scalar"
+      },
+      {
+        "offset": 19480,
+        "kind": "scalar"
+      },
+      {
+        "offset": 19592,
+        "kind": "scalar"
+      },
+      {
+        "offset": 19912,
+        "kind": "scalar"
+      },
+      {
+        "offset": 20024,
+        "kind": "scalar"
+      },
+      {
+        "offset": 20340,
+        "kind": "scalar"
+      },
+      {
+        "offset": 20452,
+        "kind": "scalar"
+      },
+      {
+        "offset": 20608,
+        "kind": "scalar"
+      },
+      {
+        "offset": 20700,
+        "kind": "scalar"
+      },
+      {
+        "offset": 20804,
+        "kind": "scalar"
+      },
+      {
+        "offset": 20916,
+        "kind": "scalar"
+      },
+      {
+        "offset": 21256,
+        "kind": "scalar"
+      },
+      {
+        "offset": 21368,
+        "kind": "scalar"
+      },
+      {
+        "offset": 21680,
+        "kind": "scalar"
+      },
+      {
+        "offset": 21792,
+        "kind": "scalar"
+      },
+      {
+        "offset": 22000,
+        "kind": "scalar"
+      },
+      {
+        "offset": 22112,
+        "kind": "scalar"
+      },
+      {
+        "offset": 22248,
+        "kind": "scalar"
+      },
+      {
+        "offset": 22468,
+        "kind": "scalar"
+      },
+      {
+        "offset": 22580,
+        "kind": "scalar"
+      },
+      {
+        "offset": 22712,
+        "kind": "scalar"
+      },
+      {
+        "offset": 22848,
+        "kind": "scalar"
+      },
+      {
+        "offset": 23056,
+        "kind": "scalar"
+      },
+      {
+        "offset": 23168,
+        "kind": "scalar"
+      },
+      {
+        "offset": 23304,
+        "kind": "scalar"
+      },
+      {
+        "offset": 23416,
+        "kind": "scalar"
+      },
+      {
+        "offset": 23620,
+        "kind": "scalar"
+      },
+      {
+        "offset": 23732,
+        "kind": "scalar"
+      },
+      {
+        "offset": 23908,
+        "kind": "scalar"
+      },
+      {
+        "offset": 24136,
+        "kind": "scalar"
+      },
+      {
+        "offset": 24248,
+        "kind": "scalar"
+      },
+      {
+        "offset": 24404,
+        "kind": "scalar"
+      },
+      {
+        "offset": 24516,
+        "kind": "scalar"
+      },
+      {
+        "offset": 24768,
+        "kind": "scalar"
+      },
+      {
+        "offset": 24880,
+        "kind": "scalar"
+      },
+      {
+        "offset": 25128,
+        "kind": "scalar"
+      },
+      {
+        "offset": 25240,
+        "kind": "scalar"
+      },
+      {
+        "offset": 25396,
+        "kind": "scalar"
+      },
+      {
+        "offset": 25508,
+        "kind": "scalar"
+      },
+      {
+        "offset": 25724,
+        "kind": "scalar"
+      },
+      {
+        "offset": 25836,
+        "kind": "scalar"
+      },
+      {
+        "offset": 26080,
+        "kind": "scalar"
+      },
+      {
+        "offset": 26192,
+        "kind": "scalar"
+      },
+      {
+        "offset": 26344,
+        "kind": "scalar"
+      },
+      {
+        "offset": 26456,
+        "kind": "scalar"
+      },
+      {
+        "offset": 26656,
+        "kind": "scalar"
+      },
+      {
+        "offset": 26768,
+        "kind": "scalar"
+      },
+      {
+        "offset": 26968,
+        "kind": "scalar"
+      },
+      {
+        "offset": 27080,
+        "kind": "scalar"
+      },
+      {
+        "offset": 27216,
+        "kind": "scalar"
+      },
+      {
+        "offset": 27308,
+        "kind": "scalar"
+      },
+      {
+        "offset": 27400,
+        "kind": "scalar"
+      },
+      {
+        "offset": 27512,
+        "kind": "scalar"
+      },
+      {
+        "offset": 27732,
+        "kind": "scalar"
+      },
+      {
+        "offset": 27844,
+        "kind": "scalar"
+      },
+      {
+        "offset": 28060,
+        "kind": "scalar"
+      },
+      {
+        "offset": 28172,
+        "kind": "scalar"
+      },
+      {
+        "offset": 28324,
+        "kind": "scalar"
+      },
+      {
+        "offset": 28436,
+        "kind": "scalar"
+      },
+      {
+        "offset": 28636,
+        "kind": "scalar"
+      },
+      {
+        "offset": 28748,
+        "kind": "scalar"
+      },
+      {
+        "offset": 28964,
+        "kind": "scalar"
+      },
+      {
+        "offset": 29076,
+        "kind": "scalar"
+      },
+      {
+        "offset": 29208,
+        "kind": "scalar"
+      },
+      {
+        "offset": 29236,
+        "kind": "scalar"
+      },
+      {
+        "offset": 29384,
+        "kind": "scalar"
+      },
+      {
+        "offset": 29496,
+        "kind": "scalar"
+      },
+      {
+        "offset": 29628,
+        "kind": "scalar"
+      },
+      {
+        "offset": 29900,
+        "kind": "scalar"
+      },
+      {
+        "offset": 30012,
+        "kind": "scalar"
+      },
+      {
+        "offset": 30220,
+        "kind": "scalar"
+      },
+      {
+        "offset": 30332,
+        "kind": "scalar"
+      },
+      {
+        "offset": 30524,
+        "kind": "scalar"
+      },
+      {
+        "offset": 30636,
+        "kind": "scalar"
+      },
+      {
+        "offset": 30904,
+        "kind": "scalar"
+      },
+      {
+        "offset": 31016,
+        "kind": "scalar"
+      },
+      {
+        "offset": 31204,
+        "kind": "scalar"
+      },
+      {
+        "offset": 31316,
+        "kind": "scalar"
+      },
+      {
+        "offset": 31468,
+        "kind": "scalar"
+      },
+      {
+        "offset": 31580,
+        "kind": "scalar"
+      },
+      {
+        "offset": 31892,
+        "kind": "scalar"
+      },
+      {
+        "offset": 32004,
+        "kind": "scalar"
+      },
+      {
+        "offset": 32340,
+        "kind": "scalar"
+      },
+      {
+        "offset": 32452,
+        "kind": "scalar"
+      },
+      {
+        "offset": 32588,
+        "kind": "scalar"
+      },
+      {
+        "offset": 32700,
+        "kind": "scalar"
+      },
+      {
+        "offset": 32916,
+        "kind": "scalar"
+      },
+      {
+        "offset": 33088,
+        "kind": "scalar"
+      },
+      {
+        "offset": 33200,
+        "kind": "scalar"
+      },
+      {
+        "offset": 33396,
+        "kind": "scalar"
+      },
+      {
+        "offset": 33508,
+        "kind": "scalar"
+      },
+      {
+        "offset": 33660,
+        "kind": "scalar"
+      },
+      {
+        "offset": 33772,
+        "kind": "scalar"
+      },
+      {
+        "offset": 33968,
+        "kind": "scalar"
+      },
+      {
+        "offset": 34080,
+        "kind": "scalar"
+      },
+      {
+        "offset": 34612,
+        "kind": "scalar"
+      },
+      {
+        "offset": 34724,
+        "kind": "scalar"
+      },
+      {
+        "offset": 34880,
+        "kind": "scalar"
+      },
+      {
+        "offset": 34992,
+        "kind": "scalar"
+      },
+      {
+        "offset": 35264,
+        "kind": "scalar"
+      },
+      {
+        "offset": 35376,
+        "kind": "scalar"
+      },
+      {
+        "offset": 35648,
+        "kind": "scalar"
+      },
+      {
+        "offset": 35760,
+        "kind": "scalar"
+      },
+      {
+        "offset": 35888,
+        "kind": "scalar"
+      },
+      {
+        "offset": 36172,
+        "kind": "scalar"
+      },
+      {
+        "offset": 36492,
+        "kind": "scalar"
+      },
+      {
+        "offset": 36604,
+        "kind": "scalar"
+      },
+      {
+        "offset": 36872,
+        "kind": "scalar"
+      },
+      {
+        "offset": 36984,
+        "kind": "scalar"
+      },
+      {
+        "offset": 37344,
+        "kind": "scalar"
+      },
+      {
+        "offset": 37456,
+        "kind": "scalar"
+      },
+      {
+        "offset": 37668,
+        "kind": "scalar"
+      },
+      {
+        "offset": 37780,
+        "kind": "scalar"
+      },
+      {
+        "offset": 38028,
+        "kind": "scalar"
+      },
+      {
+        "offset": 38140,
+        "kind": "scalar"
+      },
+      {
+        "offset": 38392,
+        "kind": "scalar"
+      },
+      {
+        "offset": 38504,
+        "kind": "scalar"
+      },
+      {
+        "offset": 38784,
+        "kind": "scalar"
+      },
+      {
+        "offset": 38896,
+        "kind": "scalar"
+      },
+      {
+        "offset": 39080,
+        "kind": "scalar"
+      },
+      {
+        "offset": 39168,
+        "kind": "scalar"
+      },
+      {
+        "offset": 39320,
+        "kind": "scalar"
+      },
+      {
+        "offset": 39432,
+        "kind": "scalar"
+      },
+      {
+        "offset": 39676,
+        "kind": "scalar"
+      },
+      {
+        "offset": 39788,
+        "kind": "scalar"
+      },
+      {
+        "offset": 39976,
+        "kind": "scalar"
+      },
+      {
+        "offset": 40088,
+        "kind": "scalar"
+      },
+      {
+        "offset": 40292,
+        "kind": "scalar"
+      },
+      {
+        "offset": 40404,
+        "kind": "scalar"
+      },
+      {
+        "offset": 40648,
+        "kind": "scalar"
+      },
+      {
+        "offset": 40760,
+        "kind": "scalar"
+      },
+      {
+        "offset": 40972,
+        "kind": "scalar"
+      },
+      {
+        "offset": 41084,
+        "kind": "scalar"
+      },
+      {
+        "offset": 41328,
+        "kind": "scalar"
+      },
+      {
+        "offset": 41440,
+        "kind": "scalar"
+      },
+      {
+        "offset": 41636,
+        "kind": "scalar"
+      },
+      {
+        "offset": 41748,
+        "kind": "scalar"
+      },
+      {
+        "offset": 41992,
+        "kind": "scalar"
+      },
+      {
+        "offset": 42104,
+        "kind": "scalar"
+      },
+      {
+        "offset": 42320,
+        "kind": "scalar"
+      },
+      {
+        "offset": 42432,
+        "kind": "scalar"
+      },
+      {
+        "offset": 42588,
+        "kind": "scalar"
+      },
+      {
+        "offset": 42680,
+        "kind": "scalar"
+      },
+      {
+        "offset": 42828,
+        "kind": "scalar"
+      },
+      {
+        "offset": 42940,
+        "kind": "scalar"
+      },
+      {
+        "offset": 43124,
+        "kind": "scalar"
+      },
+      {
+        "offset": 43236,
+        "kind": "scalar"
+      },
+      {
+        "offset": 43372,
+        "kind": "scalar"
+      },
+      {
+        "offset": 43544,
+        "kind": "scalar"
+      },
+      {
+        "offset": 43656,
+        "kind": "scalar"
+      },
+      {
+        "offset": 43928,
+        "kind": "scalar"
+      },
+      {
+        "offset": 44040,
+        "kind": "scalar"
+      },
+      {
+        "offset": 44168,
+        "kind": "scalar"
+      },
+      {
+        "offset": 44412,
+        "kind": "scalar"
+      },
+      {
+        "offset": 44524,
+        "kind": "scalar"
+      },
+      {
+        "offset": 44720,
+        "kind": "scalar"
+      },
+      {
+        "offset": 44832,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45052,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45164,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45288,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45460,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45584,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45696,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45880,
+        "kind": "scalar"
+      },
+      {
+        "offset": 45992,
+        "kind": "scalar"
+      },
+      {
+        "offset": 46120,
+        "kind": "scalar"
+      },
+      {
+        "offset": 46364,
+        "kind": "scalar"
+      },
+      {
+        "offset": 46476,
+        "kind": "scalar"
+      },
+      {
+        "offset": 46616,
+        "kind": "scalar"
+      },
+      {
+        "offset": 46728,
+        "kind": "scalar"
+      },
+      {
+        "offset": 46916,
+        "kind": "scalar"
+      },
+      {
+        "offset": 47028,
+        "kind": "scalar"
+      },
+      {
+        "offset": 47216,
+        "kind": "scalar"
+      },
+      {
+        "offset": 47328,
+        "kind": "scalar"
+      },
+      {
+        "offset": 47572,
+        "kind": "scalar"
+      },
+      {
+        "offset": 47684,
+        "kind": "scalar"
+      },
+      {
+        "offset": 47972,
+        "kind": "scalar"
+      },
+      {
+        "offset": 48084,
+        "kind": "scalar"
+      },
+      {
+        "offset": 48212,
+        "kind": "scalar"
+      },
+      {
+        "offset": 48376,
+        "kind": "scalar"
+      },
+      {
+        "offset": 48528,
+        "kind": "scalar"
+      },
+      {
+        "offset": 48640,
+        "kind": "scalar"
+      },
+      {
+        "offset": 48824,
+        "kind": "scalar"
+      },
+      {
+        "offset": 48936,
+        "kind": "scalar"
+      },
+      {
+        "offset": 49204,
+        "kind": "scalar"
+      },
+      {
+        "offset": 49316,
+        "kind": "scalar"
+      },
+      {
+        "offset": 49504,
+        "kind": "scalar"
+      },
+      {
+        "offset": 49616,
+        "kind": "scalar"
+      },
+      {
+        "offset": 49832,
+        "kind": "scalar"
+      },
+      {
+        "offset": 49944,
+        "kind": "scalar"
+      },
+      {
+        "offset": 50160,
+        "kind": "scalar"
+      },
+      {
+        "offset": 50272,
+        "kind": "scalar"
+      },
+      {
+        "offset": 50408,
+        "kind": "scalar"
+      },
+      {
+        "offset": 50432,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 50436,
+        "kind": "scalar"
+      },
+      {
+        "offset": 50572,
+        "kind": "gpr",
+        "register_xor": 131072,
+        "scratch": 16
+      },
+      {
+        "offset": 50812,
+        "kind": "scalar"
+      },
+      {
+        "offset": 50924,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51084,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51196,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51340,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51428,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51612,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51724,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51860,
+        "kind": "scalar"
+      },
+      {
+        "offset": 51972,
+        "kind": "scalar"
+      },
+      {
+        "offset": 52448,
+        "kind": "scalar"
+      },
+      {
+        "offset": 52540,
+        "kind": "scalar"
+      },
+      {
+        "offset": 52688,
+        "kind": "scalar"
+      },
+      {
+        "offset": 52800,
+        "kind": "scalar"
+      },
+      {
+        "offset": 52988,
+        "kind": "scalar"
+      },
+      {
+        "offset": 53100,
+        "kind": "scalar"
+      },
+      {
+        "offset": 53304,
+        "kind": "scalar"
+      },
+      {
+        "offset": 53416,
+        "kind": "scalar"
+      },
+      {
+        "offset": 53556,
+        "kind": "scalar"
+      },
+      {
+        "offset": 53668,
+        "kind": "scalar"
+      },
+      {
+        "offset": 53912,
+        "kind": "scalar"
+      },
+      {
+        "offset": 54024,
+        "kind": "scalar"
+      },
+      {
+        "offset": 54236,
+        "kind": "scalar"
+      },
+      {
+        "offset": 54348,
+        "kind": "scalar"
+      },
+      {
+        "offset": 54672,
+        "kind": "scalar"
+      },
+      {
+        "offset": 54784,
+        "kind": "scalar"
+      },
+      {
+        "offset": 54924,
+        "kind": "scalar"
+      },
+      {
+        "offset": 55036,
+        "kind": "scalar"
+      },
+      {
+        "offset": 55280,
+        "kind": "scalar"
+      },
+      {
+        "offset": 55392,
+        "kind": "scalar"
+      },
+      {
+        "offset": 55528,
+        "kind": "scalar"
+      },
+      {
+        "offset": 55640,
+        "kind": "scalar"
+      },
+      {
+        "offset": 55892,
+        "kind": "scalar"
+      },
+      {
+        "offset": 56004,
+        "kind": "scalar"
+      },
+      {
+        "offset": 56148,
+        "kind": "scalar"
+      },
+      {
+        "offset": 56260,
+        "kind": "scalar"
+      },
+      {
+        "offset": 56420,
+        "kind": "scalar"
+      },
+      {
+        "offset": 56652,
+        "kind": "scalar"
+      },
+      {
+        "offset": 56764,
+        "kind": "scalar"
+      },
+      {
+        "offset": 57024,
+        "kind": "scalar"
+      },
+      {
+        "offset": 57136,
+        "kind": "scalar"
+      },
+      {
+        "offset": 57448,
+        "kind": "scalar"
+      },
+      {
+        "offset": 57560,
+        "kind": "scalar"
+      },
+      {
+        "offset": 57748,
+        "kind": "scalar"
+      },
+      {
+        "offset": 57860,
+        "kind": "scalar"
+      },
+      {
+        "offset": 58108,
+        "kind": "scalar"
+      },
+      {
+        "offset": 58220,
+        "kind": "scalar"
+      },
+      {
+        "offset": 58400,
+        "kind": "scalar"
+      },
+      {
+        "offset": 58568,
+        "kind": "scalar"
+      },
+      {
+        "offset": 58680,
+        "kind": "scalar"
+      },
+      {
+        "offset": 58996,
+        "kind": "scalar"
+      },
+      {
+        "offset": 59108,
+        "kind": "scalar"
+      },
+      {
+        "offset": 59296,
+        "kind": "scalar"
+      },
+      {
+        "offset": 59388,
+        "kind": "scalar"
+      },
+      {
+        "offset": 59504,
+        "kind": "scalar"
+      },
+      {
+        "offset": 59616,
+        "kind": "scalar"
+      },
+      {
+        "offset": 59816,
+        "kind": "scalar"
+      },
+      {
+        "offset": 59936,
+        "kind": "scalar"
+      },
+      {
+        "offset": 60124,
+        "kind": "scalar"
+      },
+      {
+        "offset": 60220,
+        "kind": "scalar"
+      },
+      {
+        "offset": 60316,
+        "kind": "scalar"
+      },
+      {
+        "offset": 60428,
+        "kind": "scalar"
+      },
+      {
+        "offset": 60644,
+        "kind": "scalar"
+      },
+      {
+        "offset": 60756,
+        "kind": "scalar"
+      },
+      {
+        "offset": 60896,
+        "kind": "scalar"
+      },
+      {
+        "offset": 61008,
+        "kind": "scalar"
+      },
+      {
+        "offset": 61144,
+        "kind": "scalar"
+      },
+      {
+        "offset": 61152,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 61156,
+        "kind": "gpr",
+        "register_xor": 131074,
+        "scratch": 16
+      },
+      {
+        "offset": 61160,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 61164,
+        "kind": "scalar"
+      },
+      {
+        "offset": 61328,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 61564,
+        "kind": "scalar"
+      },
+      {
+        "offset": 61676,
+        "kind": "scalar"
+      },
+      {
+        "offset": 61956,
+        "kind": "scalar"
+      },
+      {
+        "offset": 62068,
+        "kind": "scalar"
+      },
+      {
+        "offset": 62316,
+        "kind": "scalar"
+      },
+      {
+        "offset": 62428,
+        "kind": "scalar"
+      },
+      {
+        "offset": 62616,
+        "kind": "scalar"
+      },
+      {
+        "offset": 62728,
+        "kind": "scalar"
+      },
+      {
+        "offset": 62928,
+        "kind": "scalar"
+      },
+      {
+        "offset": 63040,
+        "kind": "scalar"
+      },
+      {
+        "offset": 63200,
+        "kind": "scalar"
+      },
+      {
+        "offset": 63312,
+        "kind": "scalar"
+      },
+      {
+        "offset": 63548,
+        "kind": "scalar"
+      },
+      {
+        "offset": 63660,
+        "kind": "scalar"
+      },
+      {
+        "offset": 63812,
+        "kind": "scalar"
+      },
+      {
+        "offset": 63924,
+        "kind": "scalar"
+      },
+      {
+        "offset": 64164,
+        "kind": "scalar"
+      },
+      {
+        "offset": 64276,
+        "kind": "scalar"
+      },
+      {
+        "offset": 64432,
+        "kind": "scalar"
+      },
+      {
+        "offset": 64544,
+        "kind": "scalar"
+      },
+      {
+        "offset": 64668,
+        "kind": "scalar"
+      },
+      {
+        "offset": 65104,
+        "kind": "scalar"
+      },
+      {
+        "offset": 65536,
+        "kind": "scalar"
+      },
+      {
+        "offset": 65648,
+        "kind": "scalar"
+      },
+      {
+        "offset": 65836,
+        "kind": "scalar"
+      },
+      {
+        "offset": 65948,
+        "kind": "scalar"
+      },
+      {
+        "offset": 66192,
+        "kind": "scalar"
+      },
+      {
+        "offset": 66304,
+        "kind": "scalar"
+      },
+      {
+        "offset": 66440,
+        "kind": "scalar"
+      },
+      {
+        "offset": 66608,
+        "kind": "scalar"
+      },
+      {
+        "offset": 66720,
+        "kind": "scalar"
+      },
+      {
+        "offset": 66964,
+        "kind": "scalar"
+      },
+      {
+        "offset": 67076,
+        "kind": "scalar"
+      },
+      {
+        "offset": 67200,
+        "kind": "scalar"
+      },
+      {
+        "offset": 67348,
+        "kind": "scalar"
+      },
+      {
+        "offset": 67504,
+        "kind": "scalar"
+      },
+      {
+        "offset": 67616,
+        "kind": "scalar"
+      },
+      {
+        "offset": 67820,
+        "kind": "scalar"
+      },
+      {
+        "offset": 67972,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68060,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68164,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68268,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68356,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68504,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68592,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68800,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68888,
+        "kind": "scalar"
+      },
+      {
+        "offset": 68976,
+        "kind": "scalar"
+      },
+      {
+        "offset": 69064,
+        "kind": "scalar"
+      },
+      {
+        "offset": 69624,
+        "kind": "gpr",
+        "register_xor": 2,
+        "scratch": 16
+      },
+      {
+        "offset": 69636,
+        "kind": "gpr",
+        "register_xor": 2,
+        "scratch": 16
+      },
+      {
+        "offset": 69644,
+        "kind": "scalar"
+      },
+      {
+        "offset": 70048,
+        "kind": "scalar"
+      },
+      {
+        "offset": 70152,
+        "kind": "gpr",
+        "register_xor": 196608,
+        "scratch": 17
+      },
+      {
+        "offset": 70596,
+        "kind": "scalar"
+      },
+      {
+        "offset": 70704,
+        "kind": "scalar"
+      },
+      {
+        "offset": 70884,
+        "kind": "scalar"
+      },
+      {
+        "offset": 70976,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 71452,
+        "kind": "scalar"
+      },
+      {
+        "offset": 71564,
+        "kind": "scalar"
+      },
+      {
+        "offset": 72040,
+        "kind": "scalar"
+      },
+      {
+        "offset": 72152,
+        "kind": "scalar"
+      },
+      {
+        "offset": 72672,
+        "kind": "scalar"
+      },
+      {
+        "offset": 72784,
+        "kind": "scalar"
+      },
+      {
+        "offset": 73168,
+        "kind": "scalar"
+      },
+      {
+        "offset": 73280,
+        "kind": "scalar"
+      },
+      {
+        "offset": 73700,
+        "kind": "scalar"
+      },
+      {
+        "offset": 73812,
+        "kind": "scalar"
+      },
+      {
+        "offset": 74024,
+        "kind": "gpr",
+        "register_xor": 2,
+        "scratch": 16
+      },
+      {
+        "offset": 74028,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 74032,
+        "kind": "scalar"
+      },
+      {
+        "offset": 74048,
+        "kind": "gpr",
+        "register_xor": 64,
+        "scratch": 16
+      },
+      {
+        "offset": 74572,
+        "kind": "scalar"
+      },
+      {
+        "offset": 74684,
+        "kind": "scalar"
+      },
+      {
+        "offset": 75060,
+        "kind": "scalar"
+      },
+      {
+        "offset": 75172,
+        "kind": "scalar"
+      },
+      {
+        "offset": 75496,
+        "kind": "scalar"
+      },
+      {
+        "offset": 75608,
+        "kind": "scalar"
+      },
+      {
+        "offset": 75928,
+        "kind": "scalar"
+      },
+      {
+        "offset": 76040,
+        "kind": "scalar"
+      },
+      {
+        "offset": 76524,
+        "kind": "scalar"
+      },
+      {
+        "offset": 76636,
+        "kind": "scalar"
+      },
+      {
+        "offset": 76808,
+        "kind": "scalar"
+      },
+      {
+        "offset": 77156,
+        "kind": "scalar"
+      },
+      {
+        "offset": 77268,
+        "kind": "scalar"
+      },
+      {
+        "offset": 77600,
+        "kind": "scalar"
+      },
+      {
+        "offset": 77712,
+        "kind": "scalar"
+      },
+      {
+        "offset": 78080,
+        "kind": "scalar"
+      },
+      {
+        "offset": 78192,
+        "kind": "scalar"
+      },
+      {
+        "offset": 78556,
+        "kind": "scalar"
+      },
+      {
+        "offset": 78668,
+        "kind": "scalar"
+      },
+      {
+        "offset": 79036,
+        "kind": "scalar"
+      },
+      {
+        "offset": 79148,
+        "kind": "scalar"
+      },
+      {
+        "offset": 79412,
+        "kind": "scalar"
+      },
+      {
+        "offset": 79524,
+        "kind": "scalar"
+      },
+      {
+        "offset": 79896,
+        "kind": "scalar"
+      },
+      {
+        "offset": 80008,
+        "kind": "scalar"
+      },
+      {
+        "offset": 80280,
+        "kind": "scalar"
+      },
+      {
+        "offset": 80392,
+        "kind": "scalar"
+      },
+      {
+        "offset": 80672,
+        "kind": "scalar"
+      },
+      {
+        "offset": 80784,
+        "kind": "scalar"
+      },
+      {
+        "offset": 81064,
+        "kind": "scalar"
+      },
+      {
+        "offset": 81176,
+        "kind": "scalar"
+      },
+      {
+        "offset": 81504,
+        "kind": "scalar"
+      },
+      {
+        "offset": 81616,
+        "kind": "scalar"
+      },
+      {
+        "offset": 81876,
+        "kind": "scalar"
+      },
+      {
+        "offset": 81988,
+        "kind": "scalar"
+      },
+      {
+        "offset": 82392,
+        "kind": "scalar"
+      },
+      {
+        "offset": 82504,
+        "kind": "scalar"
+      },
+      {
+        "offset": 82784,
+        "kind": "scalar"
+      },
+      {
+        "offset": 82896,
+        "kind": "scalar"
+      },
+      {
+        "offset": 83152,
+        "kind": "scalar"
+      },
+      {
+        "offset": 83264,
+        "kind": "scalar"
+      },
+      {
+        "offset": 83528,
+        "kind": "scalar"
+      },
+      {
+        "offset": 83640,
+        "kind": "scalar"
+      },
+      {
+        "offset": 83976,
+        "kind": "scalar"
+      },
+      {
+        "offset": 84088,
+        "kind": "scalar"
+      },
+      {
+        "offset": 84356,
+        "kind": "scalar"
+      },
+      {
+        "offset": 84468,
+        "kind": "scalar"
+      },
+      {
+        "offset": 84624,
+        "kind": "scalar"
+      },
+      {
+        "offset": 84716,
+        "kind": "scalar"
+      },
+      {
+        "offset": 84952,
+        "kind": "scalar"
+      },
+      {
+        "offset": 85064,
+        "kind": "scalar"
+      },
+      {
+        "offset": 85324,
+        "kind": "scalar"
+      },
+      {
+        "offset": 85436,
+        "kind": "scalar"
+      }
+    ]
+  },
+  "shapes": {
+    "check_wrapper": {
+      "size": 72,
+      "digest": "01e65d24a8b461ea1c756c368c6cbb2ceace5a6b5fdecb43395c75d6de68448b"
+    },
+    "check_impl": {
+      "size": 64,
+      "digest": "ed9401195941f76b9631a5115c3fd61a4926f586e4b565e44e397ab41f7a2685"
+    },
+    "thread": {
+      "size": 48,
+      "digest": "bae90f6abb830a18686e99a93382e98209425582e90ed2760db7f4aa1295512c"
+    },
+    "isMainThread": {
+      "size": 40,
+      "digest": "ab84c7ec198319f721ec569b124382624c493ba71690c7b8024cee0573c2da38"
+    },
+    "boolean": {
+      "size": 40,
+      "digest": "629cee8c8b47dcc5f1af651db4fbd392d9a8eb9772accb387d10151165d3c3ef"
+    },
+    "context": {
+      "size": 108,
+      "digest": "539f354d6068b4a7197fa7e80ace18547eb2fe2bd4d443e10971c209e11cdb0b"
+    },
+    "game": {
+      "size": 248,
+      "digest": "3d036e1adca855c49a5a5cf9f311473ce6edb367b3ced2f988859fe4c92af748"
+    },
+    "gilEnsure": {
+      "size": 152,
+      "digest": "c75964078ba957932cd63b6fc5d8c585afe4fb87bc55c0a6bc3c73eef6a2010d"
+    },
+    "gilRelease": {
+      "size": 224,
+      "digest": "1433ec82dbadaf24303e0330093dee53268c9d07c5fc722b657c68030979e138"
+    },
+    "initModule": {
+      "size": 136,
+      "digest": "f2fcf728786210547f32da71f214bd39bd6d8436f40832e1a45db59f7c2284dc"
+    },
+    "reload": {
+      "size": 172,
+      "digest": "028072fed65e8dcd05b64904603b95ce4de1fccc91455b0726e4a390a481cc0b"
+    }
+  },
+  "reload_closure": "NSt6__ndk110__function6__funcIZN13MinecraftGame25handleReloadUIDefinitionsEvE3$_0NS_9allocatorIS3_EEFvRNS_6vectorI10PackReportNS4_IS7_EEEEEEE"
+}

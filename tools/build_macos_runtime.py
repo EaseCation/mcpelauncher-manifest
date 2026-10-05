@@ -95,6 +95,8 @@ def main():
     parser.add_argument('--output', type=Path, default=ROOT / 'build-macos-arm64/McpyRuntime.app')
     parser.add_argument('--build-dir', type=Path, help='Reuse an existing CMake build directory')
     parser.add_argument('--minimum-macos', default='11.0', choices=['11.0', '12.0', '13.0', '14.0', '15.0'])
+    parser.add_argument('--profile', type=Path, default=ROOT/'tools/macos_runtime_profile.json',
+                        help='Verified APK compatibility profile embedded into this runtime')
     parser.add_argument('--jobs', type=int, default=6)
     args = parser.parse_args()
     work, output = args.work_dir.resolve(), args.output.resolve()
@@ -131,7 +133,7 @@ def main():
     with (work / 'client-build.log').open('w') as log:
         run(config, env=env, stdout=log, stderr=subprocess.STDOUT)
         run(['cmake', '--build', build, '--target', 'mcpelauncher-client', 'libc-compat-smoke',
-             'netease-auth-bridge-test', '--parallel', str(args.jobs)], env=env, stdout=log, stderr=subprocess.STDOUT)
+             'netease-auth-bridge-test', 'ipc-large-write', '--parallel', str(args.jobs)], env=env, stdout=log, stderr=subprocess.STDOUT)
     run(['ctest', '--test-dir', build, '--output-on-failure'])
     dmg = download('upstream-launcher-v1.8.5.dmg', work)
     stage = output.with_name(output.name + '.staging')
@@ -167,7 +169,8 @@ def main():
     licenses.mkdir(parents=True)
     adapter = contents/'Resources/launcher'
     adapter.mkdir()
-    for name in ('run_netease_dev.py', 'netease_source_loader.py'):
+    for name in ('run_netease_dev.py', 'netease_source_loader.py', 'analyze_developer_binary.py',
+                 'inspect_android_elf.py', 'developer_binary_rules.json'):
         shutil.copy2(ROOT/'tools'/name, adapter/name)
     shutil.copy2(download('angle-LICENSE', work), licenses/'ANGLE-LICENSE')
     for directory in (ROOT, *(ROOT / x for x in ('libjnivm', 'libc-shim', 'mcpelauncher-linker', 'game-window',
@@ -186,7 +189,9 @@ def main():
         'LSMinimumSystemVersion': args.minimum_macos, 'NSHighResolutionCapable': True}))
     metadata = {'schema': 1, 'platform': 'darwin-arm64', 'minimum_macos': args.minimum_macos,
         'client_python_protocol': 1, 'json_ui_reload_protocol': 1,
-        'launch_protocol': 1, 'addon_link_protocol': 1, 'game_profile': json.loads((ROOT/'tools/macos_runtime_profile.json').read_text()),
+        'launch_protocol': 1, 'addon_link_protocol': 1,
+        'game_compatibility': {'elf_rules_schema': 1, 'package_name': 'com.netease.mctest', 'abi': 'arm64-v8a',
+                               'rules_sha256': digest(ROOT/'tools/developer_binary_rules.json')}, 'game_profile': json.loads(args.profile.read_text()),
         'minimum_os_runtime_tested': False, 'signing': 'ad-hoc; not notarized', 'sources': SOURCES,
         'manifest_commit': (json.loads((ROOT/'SOURCE_STATE.json').read_text())['root_commit'] if (ROOT/'SOURCE_STATE.json').is_file()
                             else subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()),
