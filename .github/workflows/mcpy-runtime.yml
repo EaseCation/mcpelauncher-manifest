@@ -13,6 +13,10 @@ on:
           - '3.10'
           - '3.9'
         default: '3.10'
+      prerelease:
+        description: Mark a published release as a preview (disable for a stable release)
+        type: boolean
+        default: true
       publish:
         description: Publish a public prerelease with the runtime and corresponding source
         type: boolean
@@ -44,6 +48,15 @@ jobs:
           profile=tools/macos_runtime_profile.json
           if [ "$APK_PROFILE" = '3.10' ]; then profile=tools/macos_runtime_profile_3.10.json; fi
           python3 tools/build_macos_runtime.py --profile "$profile" --output build-macos-arm64/McpyRuntime.app
+      - name: Preserve build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcpy-runtime-build-logs
+          path: |
+            build-macos-arm64/portable/*-build.log
+            build-macos-arm64/portable/client/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
       - name: Assemble runtime, corresponding source and catalog
         env:
           RELEASE_VERSION: ${{ inputs.version }}
@@ -58,10 +71,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_VERSION: ${{ inputs.version }}
+          PRERELEASE: ${{ inputs.prerelease }}
         run: |
           tag="mcpy-runtime-v$RELEASE_VERSION"
           if gh release view "$tag" > /dev/null 2>&1; then
             echo 'Release already exists. Use a new version; assets are immutable.' >&2
             exit 1
           fi
-          gh release create "$tag" build-macos-arm64/release/* --target "$GITHUB_SHA" --prerelease --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
+          flags=()
+          if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); fi
+          gh release create "$tag" build-macos-arm64/release/* --target "$GITHUB_SHA" "${flags[@]}" --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
