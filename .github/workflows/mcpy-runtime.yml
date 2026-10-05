@@ -1,17 +1,30 @@
-name: mcpy macOS runtime artifact
+name: mcpy macOS runtime
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: Immutable runtime version (e.g. 0.1.0-preview.1)
+        description: Immutable runtime version (e.g. 0.4.0-preview.1)
         required: true
         type: string
+      profile:
+        description: Default developer APK profile
+        type: choice
+        options:
+          - '3.10'
+          - '3.9'
+        default: '3.10'
+      publish:
+        description: Publish a public prerelease with the runtime and corresponding source
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   runtime:
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 60
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,7 +38,12 @@ jobs:
           command -v cmake || brew install cmake
           command -v ninja || brew install ninja
       - name: Build and audit portable runtime
-        run: python3 tools/build_macos_runtime.py --output build-macos-arm64/McpyRuntime.app
+        env:
+          APK_PROFILE: ${{ inputs.profile }}
+        run: |
+          profile=tools/macos_runtime_profile.json
+          if [ "$APK_PROFILE" = '3.10' ]; then profile=tools/macos_runtime_profile_3.10.json; fi
+          python3 tools/build_macos_runtime.py --profile "$profile" --output build-macos-arm64/McpyRuntime.app
       - name: Assemble runtime, corresponding source and catalog
         env:
           RELEASE_VERSION: ${{ inputs.version }}
@@ -35,3 +53,15 @@ jobs:
           name: mcpy-macos-arm64-${{ inputs.version }}
           path: build-macos-arm64/release/
           if-no-files-found: error
+      - name: Publish immutable release
+        if: inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          tag="mcpy-runtime-v$RELEASE_VERSION"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo 'Release already exists. Use a new version; assets are immutable.' >&2
+            exit 1
+          fi
+          gh release create "$tag" build-macos-arm64/release/* --target "$GITHUB_SHA" --prerelease --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
