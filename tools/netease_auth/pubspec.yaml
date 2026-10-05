@@ -1,0 +1,7 @@
+name: netease_launcher_auth
+publish_to: none
+environment:
+  sdk: ^3.12.2
+dependencies:
+  nemc_support_dart:
+    path: ../../../nemc_support_dart

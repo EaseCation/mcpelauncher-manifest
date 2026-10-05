@@ -1,0 +1,58 @@
+diff --git a/ore-detector-boots/behavior_pack/OreDetector/Server.py b/ore-detector-boots/behavior_pack/OreDetector/Server.py
+index f44c1ec..306a04a 100644
+--- a/ore-detector-boots/behavior_pack/OreDetector/Server.py
++++ b/ore-detector-boots/behavior_pack/OreDetector/Server.py
+@@ -1,6 +1,9 @@
+ # -*- coding: utf-8 -*-
+ """服务端权威扫描；仅向对应玩家同步结果。"""
+ import time
++
++# Android ModSDK omits time.clock; keep the scan count cap as a second budget.
++scan_clock = getattr(time, "clock", time.time)
+ from .QuModLibs.Server import Listen, Call, DestroyFunc, serverApi
+ from .Common.Scanner import Scheduler, ScanState
+ from .Common.Catalog import BLOCK_TO_KIND, PROFILES
+@@ -104,10 +107,10 @@ def update(args=None):
+             send(player, None)
+         else:
+             state.move(position)
+-    start = time.clock()
+-    calls = scheduler.run(tick, read_block, loaded, BLOCK_TO_KIND, clock=time.clock)
++    start = scan_clock()
++    calls = scheduler.run(tick, read_block, loaded, BLOCK_TO_KIND, clock=scan_clock)
+     if calls:
+-        stats.append((time.clock() - start) * 1000.0)
++        stats.append((scan_clock() - start) * 1000.0)
+         del stats[:-900]
+     if tick % 15 == 0:
+         for player, state in scheduler.states.items():
+diff --git a/ration-box/behavior_pack/Ration/PairTerminal.py b/ration-box/behavior_pack/Ration/PairTerminal.py
+index 3d1714e..dbaf9bf 100644
+--- a/ration-box/behavior_pack/Ration/PairTerminal.py
++++ b/ration-box/behavior_pack/Ration/PairTerminal.py
+@@ -50,8 +50,14 @@ class PairTerminal(Terminal):
+ 
+     def bind_button(self,path,action,index=None,enabled=True):
+         obj=self.GetBaseUIControl(path)
+-        if obj:path=obj.GetPath()
+-        return Terminal.bind_button(self,path,action,index,enabled)
++        if not obj or not obj.asButton():return
++        path=obj.GetPath()
++        button=obj.asButton()
++        button.AddTouchEventParams({'isSwallow':True})
++        # A distinct callback avoids the base Terminal on_button binding on Android.
++        button.SetButtonTouchUpCallback(self.on_pair_button)
++        button.SetTouchEnable(enabled)
++        self.paths[path]=(action,index)
+ 
+     def has_changes(self):return self.draft.dirty() or self.limit!=self.snapshot.get('limit',64) or self.enabled!=self.snapshot.get('enabled',False)
+     def mode(self):
+@@ -105,7 +111,7 @@ class PairTerminal(Terminal):
+         if self.has_changes():self.modal='discard_close';self.refresh();return
+         api.PopScreen()
+ 
+-    def on_button(self,args):
++    def on_pair_button(self,args):
+         if args.get('TouchEvent')==3:return
+         action,index=self.paths.get(args.get('ButtonPath'),(None,None))
+         if self.pending is not None:return
