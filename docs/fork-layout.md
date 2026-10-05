@@ -1,7 +1,7 @@
 # Public fork and submodule layout
 
 The default adaptation branch in each EaseCation fork is
-`codex/netease-macos-arm64`. Upstream branches and license files are retained;
+`netease-macos-arm64`. Upstream branches and license files are retained;
 this branch contains the developer-runtime changes. All submodules use committed
 Git links rather than tracking a moving branch.
 

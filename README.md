@@ -10,7 +10,7 @@ cd mcpelauncher-manifest
 python3 tools/build_macos_runtime.py --output build-macos-arm64/McpyRuntime.app
 ```
 
-The adaptation branch is `codex/netease-macos-arm64` (the fork's default branch).
+The adaptation branch is `netease-macos-arm64` (the fork's default branch).
 Submodules are pinned by commit: modified components use the public EaseCation
 forks; unchanged components continue to use their original upstream repositories.
 See [fork layout](docs/fork-layout.md), [runtime packaging](docs/mcpy-runtime-release.md)
