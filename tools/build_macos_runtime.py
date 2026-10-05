@@ -41,7 +41,14 @@ def digest(path):
 
 
 def run(args, **kwargs):
-    subprocess.run([str(x) for x in args], check=True, **kwargs)
+    try:
+        subprocess.run([str(x) for x in args], check=True, **kwargs)
+    except subprocess.CalledProcessError:
+        log = kwargs.get('stdout')
+        if hasattr(log, 'name'):
+            log.flush()
+            print(Path(log.name).read_text(errors='replace')[-16000:], flush=True)
+        raise
 
 
 def download(name, directory):
