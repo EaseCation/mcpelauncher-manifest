@@ -123,3 +123,5 @@ mcpy 的新版运行包通过 `--cppconfig /path/to/instance.cppconfig` 传递�
 创建时调用 world.create_world/set_world_info；已有 level.dat 时只打开世界，保留
 游戏内保存的模式、难度及规则。cppconfig 中启用尚未验证的实验玩法或 fancy_bubbles
 会明确报错，不静默忽略。该入口不改变现有 Python 调试、日志、保存退出和热更机制。
+
+聊天与命令输入使用开发者 APK 的 MainActivity 文本协议；接口差异、根因与物理键盘验收见[键盘输入适配](netease-text-input.md)。
