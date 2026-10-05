@@ -7,6 +7,6 @@ or account credentials. mcpy downloads the matching developer APK from NetEase
 and verifies its digest before local extraction. The corresponding recursive
 source archive, licenses and SHA256SUMS accompany this runtime.
 
-This preview is ad-hoc signed, not Developer ID notarized. Deployment target is
+This runtime is ad-hoc signed, not Developer ID notarized. Deployment target is
 macOS 11; actual game validation was performed on macOS 26.6.2. Windows continues
 to use a manually installed MC Studio environment.
