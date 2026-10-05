@@ -38,3 +38,10 @@ mcpy --local --project /path/to/addon run --detach --json
 测试：两个原生 CTest 通过；mcpy 针对性 120 个用例运行成功（其中 4 个跳过），覆盖后端路由、安装/修复、断点续传、TUI、会话、远程和 Python 通道。扩展全量 430 个用例在此 Mac 上仍有 Windows/PyQt/MCS 专用测试不通过（9 error、1 failure、23 skip），不能声称全平台全量测试通过。Windows 实机、最低 macOS、公开下载后的签名体验和 GitHub CI 尚待对应环境验证。已构建 wheel，并从仓库外加载它运行 engine doctor 成功；仓库与安装目录中的 Skill 验证通过。
 
 新运行包在安装阶段执行[二进制结构兼容检查](automatic-binary-compatibility.md)，不按版本号选择地址表。核心结构无法确认时保留旧版本并输出诊断；JSON UI 等可选能力可独立降级。APK 的下载选择仍由 catalog/profile 固定，尚未实现自动选择官方未来最新版本。
+
+运行包的 `cppconfig_protocol=1` 声明实例 cppconfig 支持。新版 mcpy 写入独立实例的
+`world_info`（不写项目 pyproject.toml），再将 `--cppconfig` 交给启动适配器。
+Windows 仍消费原有配置格式；macOS 将创建参数及 pack 引用转换成既有 world API。
+生成器、种子、模式、难度、权限和规则只用于首次创建；已有存档不重复应用创建参数。
+日志、调试通道、Metal 选择和运行包绑定继续由后端负责。旧运行包保持原启动协议，
+不支持自定义创建选项；采用这些选项需要安装新包并创建新实例。
