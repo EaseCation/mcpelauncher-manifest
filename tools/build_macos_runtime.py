@@ -129,6 +129,7 @@ def main():
         stamp.write_text(json.dumps(recipe, indent=2) + '\n')
     build = args.build_dir.resolve() if args.build_dir else work / 'client'
     config = ['cmake', '-S', ROOT, '-B', build, '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=RelWithDebInfo',
+        '-DCMAKE_POLICY_VERSION_MINIMUM=3.5',
         '-DCMAKE_OSX_ARCHITECTURES=arm64', '-DCMAKE_OSX_DEPLOYMENT_TARGET=' + args.minimum_macos,
         '-DENABLE_DEV_PATHS=OFF', '-DBUILD_UI=OFF', '-DBUILD_WEBVIEW=OFF', '-DENABLE_ERROR_WINDOW=OFF',
         '-DXAL_WEBVIEW_USE_QT=OFF', '-DBUILD_COMPAT_TESTS=ON', '-DUSE_OWN_CURL=ON', '-DNO_OPENSSL=OFF',

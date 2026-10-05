@@ -2,7 +2,7 @@
 
 mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy run`。
 首次运行自动下载原生启动器和匹配的网易开发者 APK，校验后在本机提取，完成后
-继续启动。`run` 始终是 CLI；图形管理、安装进度窗和创建确认框仅通过 `mcpy ui` 使用。
+继续启动。交互式 `run` 在终端准备资源后显示紧凑调试小窗；完整管理页和创建确认框通过 `mcpy ui` 使用。
 
 默认目录：
 `https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.0-preview.1/catalog.json`
@@ -17,7 +17,7 @@ mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy ru
 ```sh
 mcpy --local --project /path/to/addon run
 # AI / 脚本：自动安装，进度在 stderr，stdout 为单个 JSON
-mcpy --local --project /path/to/addon --non-interactive run --detach --json
+mcpy --local --project /path/to/addon --non-interactive run --no-gui --detach --json
 mcpy --local engine doctor --json
 # 人工图形界面
 mcpy --local --project /path/to/addon ui
@@ -52,7 +52,7 @@ python3 tools/package_macos_release.py \
 仅上传 CI artifact 不构成普通用户可用的分发入口。
 
 `.github/workflows/mcpy-runtime.yml` 支持手动选择版本及 APK profile；默认只上传
-artifact，显式启用 publish 才创建公开 prerelease。运行在 Apple Silicon runner。
+artifact，显式启用 publish 才公开发布；prerelease 默认为 true，正式发行设为 false。运行在 Apple Silicon runner。
 也可以本机构建审计后使用同样的资产布局发布。运行包和递归源码必须一起分发。
 SOURCE_STATE.json 记录所有子模块提交，大小写冲突的 AOSP 头文件从 Git 原样导出。
 维护 fork 和子模块的方法见 [fork-layout.md](fork-layout.md)。
