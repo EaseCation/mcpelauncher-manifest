@@ -101,7 +101,7 @@ def main():
     parser.add_argument('--work-dir', type=Path, default=ROOT / 'build-macos-arm64/portable')
     parser.add_argument('--output', type=Path, default=ROOT / 'build-macos-arm64/McpyRuntime.app')
     parser.add_argument('--build-dir', type=Path, help='Reuse an existing CMake build directory')
-    parser.add_argument('--minimum-macos', default='11.0', choices=['11.0', '12.0', '13.0', '14.0', '15.0'])
+    parser.add_argument('--minimum-macos', default='13.0', choices=['13.0', '14.0', '15.0'])
     parser.add_argument('--profile', type=Path, default=ROOT/'tools/macos_runtime_profile.json',
                         help='Verified APK compatibility profile embedded into this runtime')
     parser.add_argument('--jobs', type=int, default=6)

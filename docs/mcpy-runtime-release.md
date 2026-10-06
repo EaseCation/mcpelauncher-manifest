@@ -5,7 +5,7 @@ mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy ru
 继续启动。交互式 `run` 在终端准备资源后显示紧凑调试小窗；完整管理页和创建确认框通过 `mcpy ui` 使用。
 
 默认目录：
-`https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.0-preview.1/catalog.json`
+`https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.0/catalog.json`
 
 该发行使用开发者 APK 3.10.100.299889。运行包包含 ARM64 兼容、ANGLE Metal、
 源码 Mod、Python 调试、JSON UI 重载、实例 cppconfig 和键盘输入适配。
@@ -43,7 +43,7 @@ python3 tools/build_macos_runtime.py \
   --output build-macos-arm64/McpyRuntime-release.app
 python3 tools/package_macos_release.py \
   --runtime build-macos-arm64/McpyRuntime-release.app \
-  --version 0.4.0-preview.1 --output build-macos-arm64/release-preview.1
+  --version 0.4.0 --output build-macos-arm64/release-preview.1
 ```
 
 产出 runtime tar.gz、递归源码 tar.gz、catalog.json、SHA256SUMS；四项放在同一个
@@ -57,6 +57,6 @@ artifact，显式启用 publish 才公开发布；prerelease 默认为 true，�
 SOURCE_STATE.json 记录所有子模块提交，大小写冲突的 AOSP 头文件从 Git 原样导出。
 维护 fork 和子模块的方法见 [fork-layout.md](fork-layout.md)。
 
-运行包采用 ad-hoc 签名，未进行 Developer ID 公证。编译目标为 macOS 11.0，实际
+运行包采用 ad-hoc 签名，未进行 Developer ID 公证。编译目标为 macOS 13.0，实际
 游戏验证环境为 26.6.2；部署目标不等于最低系统已经实测。CLI 下载并运行不依赖
 DMG 安装流程，不应建议用户全局关闭 Gatekeeper。发布说明保留这些实际验证边界。
