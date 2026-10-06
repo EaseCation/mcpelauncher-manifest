@@ -126,7 +126,7 @@ def main():
         add_bytes(tar, 'McpyRuntime.integrity.json', (json.dumps(integrity, indent=2)+'\n').encode())
     sources = out/('mcpy-runtime-' + args.version + '-sources.tar.gz')
     state = export_sources(sources)
-    catalog = {'schema': 1, 'runtime': {'id': 'macos-arm64-' + args.version, 'platform': 'darwin-arm64',
+    catalog = {'schema': 1, 'apk_source': 'netease-pe', 'runtime': {'id': 'macos-arm64-' + args.version, 'platform': 'darwin-arm64',
                'minimum_macos': meta['minimum_macos'], 'archive_root': 'McpyRuntime.app',
                'url': archive.name, 'size': archive.stat().st_size, 'sha256': sha(archive)},
                'profile': meta['game_profile'], 'source': {'url': sources.name, 'size': sources.stat().st_size,

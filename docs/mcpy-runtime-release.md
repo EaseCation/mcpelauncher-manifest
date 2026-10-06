@@ -1,16 +1,16 @@
 # macOS 运行包发布与本地组装
 
 mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy run`。
-首次运行自动下载原生启动器和匹配的网易开发者 APK，校验后在本机提取，完成后
+首次运行自动下载原生启动器和网易 pe 当前返回的最新开发者 APK，校验后在本机提取，完成后
 继续启动。交互式 `run` 在终端准备资源后显示紧凑调试小窗；完整管理页和创建确认框通过 `mcpy ui` 使用。
 
 默认目录：
 `https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.0/catalog.json`
 
-该发行使用开发者 APK 3.10.100.299889。运行包包含 ARM64 兼容、ANGLE Metal、
+该发行以开发者 APK 3.10.100.299889 作为构建验证基线；首次安装实际版本由官方 pe 动态发现。运行包包含 ARM64 兼容、ANGLE Metal、
 源码 Mod、Python 调试、JSON UI 重载、实例 cppconfig 和键盘输入适配。
 不包含 APK、libminecraftpe.so、vanilla.mcp、存档或账号凭据；APK 由 mcpy 直接
-从网易 CDN 获取。固定版本下载不依赖会变化的 pe/pe_old 最新版本接口。
+从网易 CDN 获取。首次安装查询 pe，版本检查查询 pe/pe_old，不猜测 CDN 文件名；本地已安装的旧版本继续保留。下载后从 APK 读取实际身份、ARM64 核心与摘要，并进行结构兼容检查，通过后才选择。
 
 ## 用户入口
 
