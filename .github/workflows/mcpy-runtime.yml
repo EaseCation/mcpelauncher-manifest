@@ -18,7 +18,7 @@ on:
         type: boolean
         default: true
       publish:
-        description: Publish a public prerelease with the runtime and corresponding source
+        description: Publish the runtime and corresponding source
         type: boolean
         default: false
 permissions:
@@ -47,7 +47,7 @@ jobs:
         run: |
           profile=tools/macos_runtime_profile.json
           if [ "$APK_PROFILE" = '3.10' ]; then profile=tools/macos_runtime_profile_3.10.json; fi
-          python3 tools/build_macos_runtime.py --profile "$profile" --output build-macos-arm64/McpyRuntime.app
+          python3 tools/build_macos_runtime.py --minimum-macos 13.0 --profile "$profile" --output build-macos-arm64/McpyRuntime.app
       - name: Preserve build diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
