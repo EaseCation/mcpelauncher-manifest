@@ -65,3 +65,26 @@ def with_installed_packs(config, resources, behaviors):
     result = copy.deepcopy(config)
     result['world_info'].update(resource_packs=resources, behavior_packs=behaviors)
     return result
+
+
+def server_target(config):
+    import ipaddress
+    room = config.get('room_info')
+    if config.get('world_info') is not None or not isinstance(room, dict):
+        raise ValueError('Expected server cppconfig without local world')
+    host, port = room.get('ip'), room.get('port')
+    if not isinstance(host, str) or not host or host != host.strip():
+        raise ValueError('Invalid server host')
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        try:
+            host = host.rstrip('.').encode('idna').decode('ascii')
+        except UnicodeError as error:
+            raise ValueError('Invalid server host') from error
+        if len(host) > 253 or any(not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?', label)
+                                  for label in host.split('.')):
+            raise ValueError('Invalid server host')
+    if type(port) is not int or not 1 <= port <= 65535:
+        raise ValueError('Invalid server port')
+    return host, port
