@@ -62,6 +62,37 @@ def world_commands(data, config):
     return commands
 
 
+def network_commands(config):
+    from netease_cppconfig import server_target
+    host, port = server_target(config)
+    scene = "getattr(__import__('sys').modules.get('launcher.launcher'), 'base_scene', None)"
+    hide = rpc('__builtin__', 'eval', [scene + '.setVisible(False)'])
+    hide['wait_for'] = "(lambda scene: bool(scene) and scene.getName() == 'launcher_scene')(" + scene + ")"
+    hide['readiness'] = 'python'
+    args = [host, port, 'Development server', {'user_name':'LocalDev','user_id':'0'}, None,
+            {'multiplayer_game_type':100}]
+    start = "(__import__('application').instance.InitOfflinePlayer(0, 'LocalDev'), " \
+            "__import__('engine_notify_handler').instance.set_offline_start('1'), " \
+            "__import__('world').join_world(*" + repr(args) + "))[-1]"
+    ready = rpc('clientlevel', 'get_level_id', [])
+    ready['wait_for'] = "__import__('clientlevel').get_level_id() not in (None, -1, '-1')"
+    return [hide, rpc('__builtin__', 'eval', [start]), ready]
+
+
+def network_policy(host, port):
+    import socket
+    import ipaddress
+    addresses = {entry[4][0] for entry in socket.getaddrinfo(host, port, type=socket.SOCK_DGRAM)}
+    if not addresses: raise ValueError('Server address could not be resolved')
+    # Seatbelt's network filter accepts localhost or *, not an arbitrary IP.
+    # Keep the game transport on the requested UDP port; DNS is needed for names.
+    scope = 'localhost' if all(ipaddress.ip_address(a).is_loopback for a in addresses) else '*'
+    return (DEBUG_POLICY + ' (allow network-bind (local udp "*:*"))'
+            ' (allow network-inbound (local udp "*:*"))'
+            ' (allow network-outbound (remote udp "' + scope + ':' + str(port) + '"))'
+            ' (allow network-outbound (remote udp "*:53") (remote tcp "*:53"))')
+
+
 def install_source_addons(addons, installed, link=False, pack_paths=None):
     """Install mcpy build directories; preserve source projects and stable UUIDs."""
     resources, behaviors, roots = [], [], []
@@ -141,7 +172,12 @@ def prepare(args):
     if args.cppconfig:
         from netease_cppconfig import world_info
         config = json.loads(args.cppconfig.read_text(encoding='utf-8-sig'))
-        info = world_info(config)
+        if config.get('world_info') is None and config.get('room_info'):
+            from netease_cppconfig import server_target
+            args.server_target = server_target(config)
+            info = {'behavior_packs': [], 'resource_packs': []}
+        else:
+            info = world_info(config)
         for field in ('behavior_packs', 'resource_packs'):
             if any(not Path(p).is_dir() for p in info[field]):
                 raise ValueError('Missing cppconfig pack directory: ' + field)
@@ -167,8 +203,11 @@ def prepare(args):
                   'permission_level': 1, 'cheat': True, 'cheat_info': {},
                   'resource_packs': [], 'behavior_packs': []}}
     from netease_cppconfig import with_installed_packs
-    config = with_installed_packs(config, resources, behaviors)
-    commands = [] if args.online else world_commands(data, config)
+    if getattr(args, 'server_target', None):
+        commands = network_commands(config)
+    else:
+        config = with_installed_packs(config, resources, behaviors)
+        commands = [] if args.online else world_commands(data, config)
     if source_roots:
         loader = installed/'developer_source_loader.py'
         shutil.copy2(Path(__file__).with_name('netease_source_loader.py'), loader)
@@ -180,8 +219,9 @@ def prepare(args):
     return game, data, cache, client, angle, commands
 
 
-def launch_command(game, data, cache, client, angle, commands, session=None, debug_loopback=False, angle_backend=None):
-    command = ([] if session else ['/usr/bin/sandbox-exec', '-p', DEBUG_POLICY if debug_loopback else POLICY]) + ['/usr/bin/env', 'DYLD_LIBRARY_PATH='+str(angle)]
+def launch_command(game, data, cache, client, angle, commands, session=None, debug_loopback=False, angle_backend=None, server_target=None):
+    policy = network_policy(*server_target) if server_target else (DEBUG_POLICY if debug_loopback else POLICY)
+    command = ([] if session else ['/usr/bin/sandbox-exec', '-p', policy]) + ['/usr/bin/env', 'DYLD_LIBRARY_PATH='+str(angle)]
     if angle_backend:
         command += ['ANGLE_DEFAULT_PLATFORM='+angle_backend]
     command += [str(client), '--netease-dev', '--force-opengles', '--game-dir', str(game),
@@ -257,7 +297,7 @@ def main():
         parser.error(str(error))
     log = args.log.resolve()
     log.parent.mkdir(parents=True, exist_ok=True)
-    command = launch_command(game, data, cache, client, angle, commands, args.session_file.resolve() if args.online else None, args.debug_loopback, args.angle_backend)
+    command = launch_command(game, data, cache, client, angle, commands, args.session_file.resolve() if args.online else None, args.debug_loopback, args.angle_backend, getattr(args, 'server_target', None))
     command += ['--netease-compat', str(args.compat_report)]
     (log.parent/'commands.json').write_text(json.dumps(commands, ensure_ascii=False, indent=2)+'\n')
     if args.make_app:

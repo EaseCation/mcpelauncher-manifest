@@ -41,6 +41,8 @@ jobs:
           test "$(uname -m)" = arm64
           command -v cmake || brew install cmake
           command -v ninja || brew install ninja
+      - name: Test launcher adapters
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Build and audit portable runtime
         env:
           APK_PROFILE: ${{ inputs.profile }}

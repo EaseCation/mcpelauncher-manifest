@@ -197,7 +197,7 @@ def main():
         'LSMinimumSystemVersion': args.minimum_macos, 'NSHighResolutionCapable': True}))
     metadata = {'schema': 1, 'platform': 'darwin-arm64', 'minimum_macos': args.minimum_macos,
         'client_python_protocol': 1, 'json_ui_reload_protocol': 1,
-        'launch_protocol': 1, 'addon_link_protocol': 1, 'cppconfig_protocol': 1,
+        'launch_protocol': 1, 'addon_link_protocol': 1, 'cppconfig_protocol': 1, 'network_connect_protocol': 1,
         'game_compatibility': {'elf_rules_schema': 1, 'package_name': 'com.netease.mctest', 'abi': 'arm64-v8a',
                                'rules_sha256': digest(ROOT/'tools/developer_binary_rules.json')}, 'game_profile': json.loads(args.profile.read_text()),
         'minimum_os_runtime_tested': False, 'signing': 'ad-hoc; not notarized', 'sources': SOURCES,

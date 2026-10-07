@@ -5,10 +5,12 @@ mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy ru
 继续启动。交互式 `run` 在终端准备资源后显示紧凑调试小窗；完整管理页和创建确认框通过 `mcpy ui` 使用。
 
 默认目录：
-`https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.0/catalog.json`
+`https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.3/catalog.json`
 
 该发行以开发者 APK 3.10.100.299889 作为构建验证基线；首次安装实际版本由官方 pe 动态发现。运行包包含 ARM64 兼容、ANGLE Metal、
 源码 Mod、Python 调试、JSON UI 重载、实例 cppconfig 和键盘输入适配。
+0.4.3 增加无认证服务器连接（network_connect_protocol=1），需配合 mcpywrap 0.4.3+。
+旧安装可显式使用上述 catalog 执行 engine install；已有世界仍固定原运行包。
 不包含 APK、libminecraftpe.so、vanilla.mcp、存档或账号凭据；APK 由 mcpy 直接
 从网易 CDN 获取。首次安装查询 pe，版本检查查询 pe/pe_old，不猜测 CDN 文件名；本地已安装的旧版本继续保留。下载后从 APK 读取实际身份、ARM64 核心与摘要，并进行结构兼容检查，通过后才选择。
 
@@ -43,7 +45,7 @@ python3 tools/build_macos_runtime.py \
   --output build-macos-arm64/McpyRuntime-release.app
 python3 tools/package_macos_release.py \
   --runtime build-macos-arm64/McpyRuntime-release.app \
-  --version 0.4.0 --output build-macos-arm64/release-preview.1
+  --version 0.4.3 --output build-macos-arm64/release-0.4.3
 ```
 
 产出 runtime tar.gz、递归源码 tar.gz、catalog.json、SHA256SUMS；四项放在同一个
