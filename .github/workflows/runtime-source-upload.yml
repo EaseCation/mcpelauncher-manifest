@@ -1,0 +1,91 @@
+name: Complete a local runtime release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version of an existing draft with its validated runtime uploaded
+        required: true
+        type: string
+      source_ref:
+        description: Full manifest commit used to build that runtime
+        required: true
+        type: string
+      publish:
+        description: Publish after corresponding source and all checksums are uploaded
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: complete-runtime-${{ inputs.version }}
+  cancel-in-progress: false
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: EaseCation/mcpelauncher-manifest
+      RELEASE_VERSION: ${{ inputs.version }}
+      SOURCE_REF: ${{ inputs.source_ref }}
+      RELEASE_DIR: ${{ runner.temp }}/runtime-release
+      PUBLISH: ${{ inputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref }}
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate draft and download the existing runtime
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess, json
+          assert re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,60}', os.environ['RELEASE_VERSION'])
+          assert re.fullmatch(r'[0-9a-f]{40}', os.environ['SOURCE_REF'])
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip() == os.environ['SOURCE_REF']
+          release=json.loads(subprocess.check_output(['gh','release','view','mcpy-runtime-v'+os.environ['RELEASE_VERSION'],'--json','isDraft,assets'],text=True))
+          assert release['isDraft'], 'Published assets are immutable'
+          names={x['name'] for x in release['assets']}
+          assert 'mcpy-runtime-'+os.environ['RELEASE_VERSION']+'-sources.tar.gz' not in names, 'Source already uploaded; inspect before retrying'
+          PY
+          mkdir -p "$RELEASE_DIR"
+          gh release download "mcpy-runtime-v$RELEASE_VERSION" --dir "$RELEASE_DIR" --pattern catalog.json --pattern "mcpy-runtime-$RELEASE_VERSION-macos-arm64.tar.gz"
+      - name: Export pinned recursive sources and update draft checksums
+        run: |
+          python3 - <<'PY'
+          import os, sys, json, subprocess
+          from pathlib import Path
+          sys.path.insert(0, 'tools')
+          from package_macos_release import export_sources, sha
+          out=Path(os.environ['RELEASE_DIR']); version=os.environ['RELEASE_VERSION']
+          catalog=out/'catalog.json'; data=json.loads(catalog.read_text())
+          assert data['source']['root_commit'] == os.environ['SOURCE_REF']
+          assert data['runtime']['id'] == 'macos-arm64-'+version
+          runtime=out/('mcpy-runtime-'+version+'-macos-arm64.tar.gz')
+          assert data['runtime']['url'] == runtime.name
+          assert runtime.stat().st_size == data['runtime']['size'] and sha(runtime) == data['runtime']['sha256']
+          source=out/('mcpy-runtime-'+version+'-sources.tar.gz')
+          state=export_sources(source)
+          assert state['root_commit'] == os.environ['SOURCE_REF']
+          assert all(not component['overlaid_files'] for component in state['components']), 'Source checkout must be clean'
+          data['source'].update(url=source.name,size=source.stat().st_size,sha256=sha(source))
+          catalog.write_text(json.dumps(data,indent=2)+'\n')
+          (out/'SHA256SUMS').write_text(''.join(sha(p)+'  '+p.name+'\n' for p in (runtime,source,catalog)))
+          print('Verified runtime:',data['runtime']['sha256'])
+          print('Corresponding source:',data['source']['sha256'])
+          PY
+      - name: Upload corresponding source and publish only on request
+        shell: bash
+        run: |
+          test "$(gh release view "mcpy-runtime-v$RELEASE_VERSION" --json isDraft --jq .isDraft)" = true
+          gh release upload "mcpy-runtime-v$RELEASE_VERSION" "$RELEASE_DIR/mcpy-runtime-$RELEASE_VERSION-sources.tar.gz"
+          gh release upload "mcpy-runtime-v$RELEASE_VERSION" "$RELEASE_DIR/catalog.json" "$RELEASE_DIR/SHA256SUMS" --clobber
+          if [ "$PUBLISH" = true ]; then
+            gh release edit "mcpy-runtime-v$RELEASE_VERSION" --draft=false --latest=false
+          fi
