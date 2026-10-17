@@ -57,5 +57,45 @@ class RuleTests(unittest.TestCase):
         self.assertIn('missing UI anchor',result['ui_error'])
         self.assertEqual(result['dispatcher']['begin'],0x1040)
 
+    def clock_fixture(self, base=0x1000):
+        r=self.fixture()
+        image=bytearray(words(*([0xd503201f]*192)))
+        def jump(source,target):
+            return 0x14000000+((target-source)//4 & 0x3ffffff)
+        for wrapper in (0,32):
+            struct.pack_into('<I',image,wrapper+16,jump(wrapper+16,64))
+        struct.pack_into('<I',image,64+160,jump(64+160,384))
+        image[384:392]=words(0xfd000800,0xd65f03c0)
+        r.elf=SimpleNamespace(data=bytes(image),loads=[],
+            executable=lambda a:base<=a<base+len(image),offset=lambda a:a-base)
+        r.rules['shapes']={name:{'size':size,'digest':hashlib.sha256(
+            normalized(image[offset:offset+size],base+offset)).hexdigest()}
+            for name,offset,size in [('math_unary_wrapper',0,20),('math_unary',64,244),('floatFromDouble',384,8)]}
+        r.registered_function=lambda name:base+{'fabs':0,'ceil':32}[name]
+        return r
+
+    def test_clock_constructor_is_resolved_through_both_math_registrations(self):
+        for base in (0x1000,0x8000):
+            self.assertEqual(self.clock_fixture(base).float_constructor(),base+384)
+
+    def test_clock_rejects_changed_constructor_or_disagreeing_helpers(self):
+        r=self.clock_fixture()
+        r.elf.data=r.elf.data[:384]+words(0xfd000801)+r.elf.data[388:]
+        with self.assertRaises(Incompatible):r.float_constructor()
+        r=self.clock_fixture()
+        image=bytearray(r.elf.data)
+        image[448:692]=image[64:308]
+        struct.pack_into('<I',image,48,0x14000000+(448-48)//4)
+        r.elf.data=bytes(image)
+        with self.assertRaisesRegex(Incompatible,'shared CPython'):
+            r.float_constructor()
+
+    def test_missing_clock_binding_preserves_ui_capability(self):
+        r=self.fixture();r.ui=Mock(return_value={'reload':123})
+        r.float_constructor=Mock(side_effect=Incompatible('float ABI changed'))
+        result=r.resolve()
+        self.assertEqual(result['ui'],{'reload':123})
+        self.assertEqual(result['input_clock_error'],'float ABI changed')
+
 
 if __name__=='__main__':unittest.main()

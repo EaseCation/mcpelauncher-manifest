@@ -16,7 +16,11 @@ FUNCTIONS={
  'check_wrapper':(0x93ca240,72), 'check_impl':(0x9381f80,64),
  'thread':(0x123e5a28,48), 'isMainThread':(0x123e5a00,40), 'boolean':(0x12143f6c,40),
  'context':(0x94c305c,108), 'game':(0x94c3768,248), 'gilEnsure':(0x12288454,152),
- 'gilRelease':(0x122884ec,224), 'initModule':(0x1228461c,136), 'reload':(0x6364d14,172)}
+ 'gilRelease':(0x122884ec,224), 'initModule':(0x1228461c,136), 'reload':(0x6364d14,172),
+ # math.fabs/ceil -> math_1_to_whatever -> PyFloat_FromDouble. The full
+ # constructor includes the free-list allocation and PyFloatObject return ABI.
+ 'math_unary_wrapper':(0x122171e4,20), 'math_unary':(0x12218698,244),
+ 'floatFromDouble':(0x12160a0c,452)}
 SPECIAL=[
  (0x10de8cb4,0x52beab12,0x52beab10,16),(0x10de8cb8,0x72804512,0x72804510,16),
  (0x10debe1c,0x7a4a1a48,0x7a4a1a08,16),(0x10debea8,0x1a92b220,0x1a90b220,16),
