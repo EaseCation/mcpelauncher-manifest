@@ -30,7 +30,6 @@ jobs:
       GH_REPO: EaseCation/mcpelauncher-manifest
       RELEASE_VERSION: ${{ inputs.version }}
       SOURCE_REF: ${{ inputs.source_ref }}
-      RELEASE_DIR: ${{ runner.temp }}/runtime-release
       PUBLISH: ${{ inputs.publish }}
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +43,8 @@ jobs:
       - name: Validate draft and download the existing runtime
         shell: bash
         run: |
+          export RELEASE_DIR="$RUNNER_TEMP/runtime-release"
+          echo "RELEASE_DIR=$RELEASE_DIR" >> "$GITHUB_ENV"
           python3 - <<'PY'
           import os, re, subprocess, json
           assert re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,60}', os.environ['RELEASE_VERSION'])
