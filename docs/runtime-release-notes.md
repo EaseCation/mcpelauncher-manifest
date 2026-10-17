@@ -1,9 +1,18 @@
-0.4.3 adds unauthenticated server connections through the existing Android Python
-world.join_world entry point; no new game binary patches. Requires mcpywrap 0.4.3+.
-Validated with developer APK 3.10.100.299889 and a local offline Nemisys / SynapseAPI /
-Nukkit stack on macOS 26.6.2. Network sessions support client Python only; external
-HTTP resource-pack downloads, authenticated servers and the 0.4.2 unified input
-clock are not part of this validation. Existing worlds keep their pinned runtime.
+0.4.4 fixes `missing_monotonic_clock` for mcpy unified game input on macOS.
+The native launcher now exposes a steady clock to the game's Python 2 interpreter.
+The game-owned float constructor is resolved through verified CPython structural
+rules; missing or ambiguous bindings keep the clock disabled without disabling UI reload.
+
+Use with mcpywrap 0.4.6, which selects this runtime for new installations. Existing
+installations must explicitly install this release catalog and create a new instance
+with `run --new`; upgrading the CLI does not change existing world bindings.
+
+Validated on Apple Silicon / macOS 26.6.2 / developer APK 3.9.100.297020: eight live
+cases passed, covering idle/pause timing, three overlapping movement/jump cases,
+modifier-key cancellation, attacks while moving, chat navigation and UI clicking.
+Server-side attack damage was confirmed (health 100 -> 95). Structural compatibility
+also passed for 3.10.100.299889; its full input suite was not run for this release.
+All test sessions were saved and stopped. No system clock changes were made.
 
 Native Apple Silicon runtime for mcpy's local Minecraft China developer worlds.
 Includes the Android compatibility layer, ANGLE Metal, source Addon loading,

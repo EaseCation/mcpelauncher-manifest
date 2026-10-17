@@ -1969,6 +1969,18 @@
     "reload": {
       "size": 172,
       "digest": "028072fed65e8dcd05b64904603b95ce4de1fccc91455b0726e4a390a481cc0b"
+    },
+    "math_unary_wrapper": {
+      "size": 20,
+      "digest": "857147802910d4ecfca958af8436ea80019e5c1cd93b70f5deaf96cdefbe7ff1"
+    },
+    "math_unary": {
+      "size": 244,
+      "digest": "63b9293284354e1595cd8edb82cf3c4adb832927f1d843434b2a3580bb17233f"
+    },
+    "floatFromDouble": {
+      "size": 452,
+      "digest": "e5ac0511d124453602ef7225a3d39f18e1e5a8950bb0ffaff644aad28696af49"
     }
   },
   "reload_closure": "NSt6__ndk110__function6__funcIZN13MinecraftGame25handleReloadUIDefinitionsEvE3$_0NS_9allocatorIS3_EEFvRNS_6vectorI10PackReportNS4_IS7_EEEEEEE"

@@ -250,6 +250,17 @@ class Resolver:
         output['reload']=self.verify(target,'reload');output['reload_index']=index
         return output
 
+    def float_constructor(self):
+        # Two independently registered CPython math methods must converge on
+        # the same audited helper and its double -> PyFloatObject return path.
+        # Never use a version address or a host Python allocator.
+        helpers=[]
+        for name in ('fabs', 'ceil'):
+            wrapper=self.verify(self.registered_function(name),'math_unary_wrapper')
+            helpers.append(self.verify(branch(self.word(wrapper+16),wrapper+16),'math_unary'))
+        helper=unique(helpers,'shared CPython unary math helper')
+        return self.verify(branch(self.word(helper+160),helper+160),'floatFromDouble')
+
     def resolve(self):
         result={'schema':1,'rule_family':self.rules['family'],'elf_sha256':hashlib.sha256(self.elf.data).hexdigest(),
                 'elf_size':len(self.elf.data),'mapping_end':max(s[3]+s[6] for s in self.elf.loads),
@@ -257,6 +268,11 @@ class Resolver:
         try:result['ui']=self.ui()
         except (ValueError, KeyError, IndexError, struct.error) as error:
             result['ui']=None;result['ui_error']=str(error)
+        if result['ui'] is not None:
+            try:result['ui']['floatFromDouble']=self.float_constructor()
+            except (ValueError, KeyError, IndexError, struct.error) as error:
+                # A missing optional clock must not disable existing UI reload.
+                result['input_clock_error']=str(error)
         result['evidence']=self.evidence
         return result
 
@@ -275,7 +291,8 @@ def main():
         return 1
     a.output.parent.mkdir(parents=True,exist_ok=True)
     temporary=a.output.with_suffix(a.output.suffix+'.tmp');temporary.write_text(json.dumps(result,indent=2)+'\n');temporary.replace(a.output)
-    print(json.dumps({'ok':True,'rule_family':result['rule_family'],'capabilities':{'arm64_dispatcher':True,'json_ui_reload':result['ui'] is not None},'output':str(a.output)}))
+    print(json.dumps({'ok':True,'rule_family':result['rule_family'],'capabilities':{'arm64_dispatcher':True,'json_ui_reload':result['ui'] is not None,
+        'input_monotonic_clock':'floatFromDouble' in (result['ui'] or {})},'output':str(a.output)}))
     return 0
 
 if __name__=='__main__':raise SystemExit(main())
