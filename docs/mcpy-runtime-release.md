@@ -37,6 +37,8 @@ mcpy --local --project /path/to/addon ui
 
 ## 构建和发布
 
+构建产物的 `screenshot_protocol=1` 声明按需游戏帧截图：复用原生本地控制通道，在渲染线程获取游戏内容区，调用端编码 PNG。该能力不使用系统屏幕录制权限，不提供录像。旧实例仍以固定运行包的实际协议为准；默认 catalog 仅在新资产发布并验证后更新。
+
 构建端需要 Apple Silicon、Xcode 命令行工具、CMake、Ninja、Python；运行端不需要
 Homebrew、Wine 或另一个 Launcher。构建依赖固定来源和摘要。
 
