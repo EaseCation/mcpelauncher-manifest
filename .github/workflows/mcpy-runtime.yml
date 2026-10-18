@@ -76,10 +76,10 @@ jobs:
           PRERELEASE: ${{ inputs.prerelease }}
         run: |
           tag="mcpy-runtime-v$RELEASE_VERSION"
-          if gh release view "$tag" > /dev/null 2>&1; then
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
             echo 'Release already exists. Use a new version; assets are immutable.' >&2
             exit 1
           fi
           flags=()
           if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); fi
-          gh release create "$tag" build-macos-arm64/release/* --target "$GITHUB_SHA" "${flags[@]}" --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
+          gh release create "$tag" build-macos-arm64/release/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" "${flags[@]}" --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
