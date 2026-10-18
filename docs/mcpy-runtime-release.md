@@ -59,7 +59,7 @@ python3 tools/package_macos_release.py \
 
 `.github/workflows/mcpy-runtime.yml` 支持手动选择版本及 APK profile；默认只上传
 artifact，显式启用 publish 才公开发布；prerelease 默认为 true，正式发行设为 false。运行在 Apple Silicon runner。
-也可以本机构建审计后使用同样的资产布局发布。运行包和递归源码必须一起分发。
+也可以本机构建审计后使用同样的资产布局发布。GitHub CLI 必须显式指定 `--repo EaseCation/mcpelauncher-manifest`，避免 fork 默认路由到上游仓库。运行包和递归源码必须一起分发。
 SOURCE_STATE.json 记录所有子模块提交，大小写冲突的 AOSP 头文件从 Git 原样导出。
 维护 fork 和子模块的方法见 [fork-layout.md](fork-layout.md)。
 
