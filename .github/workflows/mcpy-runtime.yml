@@ -6,6 +6,11 @@ on:
         description: Immutable runtime version (e.g. 0.4.0-preview.1)
         required: true
         type: string
+      source_ref:
+        description: Existing source ref to build (blank uses the dispatched commit)
+        required: false
+        default: ''
+        type: string
       profile:
         description: Default developer APK profile
         type: choice
@@ -32,6 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.source_ref || github.sha }}
           submodules: recursive
       - uses: actions/setup-python@v5
         with:
@@ -82,4 +88,4 @@ jobs:
           fi
           flags=()
           if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); fi
-          gh release create "$tag" build-macos-arm64/release/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" "${flags[@]}" --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
+          gh release create "$tag" build-macos-arm64/release/* --repo "$GITHUB_REPOSITORY" --target "$(git rev-parse HEAD)" "${flags[@]}" --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
