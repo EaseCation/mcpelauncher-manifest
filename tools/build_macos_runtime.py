@@ -141,7 +141,7 @@ def main():
     with (work / 'client-build.log').open('w') as log:
         run(config, env=env, stdout=log, stderr=subprocess.STDOUT)
         run(['cmake', '--build', build, '--target', 'mcpelauncher-client', 'libc-compat-smoke',
-             'netease-auth-bridge-test', 'ipc-large-write', 'developer-screenshot-test',
+             'netease-auth-bridge-test', 'ipc-large-write', 'developer-screenshot-test', 'libc-upstream-smoke',
              '--parallel', str(args.jobs)], env=env, stdout=log, stderr=subprocess.STDOUT)
     run(['ctest', '--test-dir', build, '--output-on-failure'])
     dmg = download('upstream-launcher-v1.8.5.dmg', work)
