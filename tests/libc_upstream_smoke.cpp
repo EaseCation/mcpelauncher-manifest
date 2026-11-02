@@ -66,6 +66,8 @@ int main() {
     int reader=accept(listener,nullptr,nullptr);assert(reader>=0);
     assert(lseek(fileno(file),0,SEEK_SET)==0);
     int64_t position=1;
+    assert(sendFile(-1,fileno(file),&position,3)==-1 && position==1);
+    assert(sendFile(writer,-1,&position,3)==-1 && position==1);
     assert(sendFile(writer,fileno(file),&position,0)==0 && position==1);
     assert(sendFile(writer,fileno(file),&position,3)==3 && position==4);
     assert(lseek(fileno(file),0,SEEK_CUR)==0);
