@@ -12,6 +12,11 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <atomic>
+#include <chrono>
+#include <csignal>
+#include <thread>
+#include <pthread.h>
 
 int main() {
     std::unordered_map<std::string, void*> symbols;
@@ -38,6 +43,29 @@ int main() {
     assert(post(sem) == 0);
     assert(wait(sem) == 0);
     assert(wait(sem) == -1 && *error() == 11);
+#ifdef __APPLE__
+    // 信号打断 Mach 等待时，Android 调用方必须收到 -1/EINTR。
+    struct sigaction action{}, previous{};
+    action.sa_handler = +[](int) {};
+    sigemptyset(&action.sa_mask);
+    assert(sigaction(SIGUSR1, &action, &previous) == 0);
+    auto blockingWait = reinterpret_cast<int(*)(void*)>(symbols.at("sem_wait"));
+    auto waitingThread = pthread_self();
+    std::atomic<bool> finished{false};
+    std::thread interrupter([&] {
+        for(int i = 0; i < 100 && !finished; ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            pthread_kill(waitingThread, SIGUSR1);
+        }
+        if(!finished) post(sem);
+    });
+    int interrupted = blockingWait(sem);
+    int interruptedError = *error();
+    finished = true;
+    interrupter.join();
+    assert(sigaction(SIGUSR1, &previous, nullptr) == 0);
+    assert(interrupted == -1 && interruptedError == 4);
+#endif
     assert(destroy(sem) == 0);
     auto androidFcntl = reinterpret_cast<int(*)(int, int, void*)>(symbols.at("fcntl"));
     int sockets[2];

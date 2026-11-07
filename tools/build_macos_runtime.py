@@ -127,6 +127,10 @@ def main():
             run(['make', '-j' + str(args.jobs)], cwd=source, env=env, stdout=log, stderr=subprocess.STDOUT)
             run(['make', 'install_sw'], cwd=source, env=env, stdout=log, stderr=subprocess.STDOUT)
         stamp.write_text(json.dumps(recipe, indent=2) + '\n')
+    # Advertise this protocol only when every native implementation is present.
+    for source in ('game-window/src/window_glfw.cpp', 'mcpelauncher-client/src/window_callbacks.cpp'):
+        if 'MCPY_GAME_BACKGROUND' not in (ROOT / source).read_text():
+            raise RuntimeError('Missing background-window source patch: ' + source)
     build = args.build_dir.resolve() if args.build_dir else work / 'client'
     config = ['cmake', '-S', ROOT, '-B', build, '-G', 'Ninja', '-DCMAKE_BUILD_TYPE=RelWithDebInfo',
         '-DCMAKE_POLICY_VERSION_MINIMUM=3.5',
@@ -198,7 +202,7 @@ def main():
         'LSMinimumSystemVersion': args.minimum_macos, 'NSHighResolutionCapable': True}))
     metadata = {'schema': 1, 'platform': 'darwin-arm64', 'minimum_macos': args.minimum_macos,
         'client_python_protocol': 1, 'json_ui_reload_protocol': 1, 'input_monotonic_clock_protocol': 1,
-        'screenshot_protocol': 1,
+        'screenshot_protocol': 1, 'background_window_protocol': 1,
         'launch_protocol': 1, 'addon_link_protocol': 1, 'cppconfig_protocol': 1, 'network_connect_protocol': 1,
         'game_compatibility': {'elf_rules_schema': 1, 'package_name': 'com.netease.mctest', 'abi': 'arm64-v8a',
                                'rules_sha256': digest(ROOT/'tools/developer_binary_rules.json')}, 'game_profile': json.loads(args.profile.read_text()),

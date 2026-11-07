@@ -219,9 +219,9 @@ def prepare(args):
     return game, data, cache, client, angle, commands
 
 
-def launch_command(game, data, cache, client, angle, commands, session=None, debug_loopback=False, angle_backend=None, server_target=None):
+def launch_command(game, data, cache, client, angle, commands, session=None, debug_loopback=False, angle_backend=None, server_target=None, background=False):
     policy = network_policy(*server_target) if server_target else (DEBUG_POLICY if debug_loopback else POLICY)
-    command = ([] if session else ['/usr/bin/sandbox-exec', '-p', policy]) + ['/usr/bin/env', 'DYLD_LIBRARY_PATH='+str(angle)]
+    command = ([] if session else ['/usr/bin/sandbox-exec', '-p', policy]) + ['/usr/bin/env', 'MCPY_GAME_BACKGROUND=' + ('1' if background else '0'), 'DYLD_LIBRARY_PATH='+str(angle)]
     if angle_backend:
         command += ['ANGLE_DEFAULT_PLATFORM='+angle_backend]
     command += [str(client), '--netease-dev', '--force-opengles', '--game-dir', str(game),
@@ -259,6 +259,7 @@ def main():
     parser.add_argument('--prepare-only', action='store_true')
     parser.add_argument('--run-seconds', type=int, help='Bounded smoke run; stops after this time, not a save/quit test')
     parser.add_argument('--log', type=Path)
+    parser.add_argument('--background', action='store_true', help='Show the game without activating it or grabbing the cursor')
     parser.add_argument('--exec-client', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
     args.client = args.client or args.runtime/'Contents/MacOS/mcpelauncher-client'
@@ -297,7 +298,7 @@ def main():
         parser.error(str(error))
     log = args.log.resolve()
     log.parent.mkdir(parents=True, exist_ok=True)
-    command = launch_command(game, data, cache, client, angle, commands, args.session_file.resolve() if args.online else None, args.debug_loopback, args.angle_backend, getattr(args, 'server_target', None))
+    command = launch_command(game, data, cache, client, angle, commands, args.session_file.resolve() if args.online else None, args.debug_loopback, args.angle_backend, getattr(args, 'server_target', None), background=args.background)
     command += ['--netease-compat', str(args.compat_report)]
     (log.parent/'commands.json').write_text(json.dumps(commands, ensure_ascii=False, indent=2)+'\n')
     if args.make_app:
@@ -328,7 +329,7 @@ def main():
         script = mac/'Launch'
         wrapper = [sys.executable, str(Path(__file__).resolve()), '--game-dir', str(game), '--data-dir', str(data),
                    '--cache-dir', str(cache), '--client', str(mac/'mcpelauncher-client'), '--angle-dir', str(app/'Contents/Frameworks'),
-                   '--world-id', args.world_id, '--world-name', args.world_name, '--log', str(log), '--exec-client']
+                   '--world-id', args.world_id, '--world-name', args.world_name, '--log', str(log), '--exec-client'] + (['--background'] if args.background else [])
         if args.cppconfig:
             wrapper += ['--cppconfig', str(args.cppconfig.resolve())]
         if args.compat_report:
