@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import Mock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
 from netease_cppconfig import creation_arguments, server_target
-from run_netease_dev import world_commands, network_commands, network_policy
+from run_netease_dev import world_commands, network_commands, network_policy, install_network_sources
 
 
 class BridgeTests(unittest.TestCase):
@@ -55,6 +55,20 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(world.join_world.call_args.args[:2], ('localhost', 29132))
         self.assertEqual(world.join_world.call_args.args[-1], {'multiplayer_game_type': 100})
         self.assertIn('get_level_id', commands[-1]['wait_for'])
+
+    def test_network_installs_plain_source_adapter_for_session_pack_cache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            installed = Path(directory)/'games/com.netease'
+            installed.mkdir(parents=True)
+            command = install_network_sources(installed)
+            adapter = installed/'network_plain_sources.py'
+            self.assertTrue(adapter.is_file())
+            self.assertEqual(command['module_name'], '__builtin__')
+            self.assertEqual(command['func_name'], 'execfile')
+            self.assertEqual(command['args'], [str(adapter), {'PACK_CACHE': str(installed/'packcache')}])
+            source = adapter.read_text(encoding='utf-8')
+            self.assertIn('PACK_CACHE', source)
+            self.assertIn("('.mcp', '.mcs', '.pyc', '.pyo')", source)
 
     def test_server_config_rejects_world_and_invalid_endpoints(self):
         for host, port in [('bad/host', 19132), ('a..b', 19132), ('localhost', True), ('localhost', 65536)]:

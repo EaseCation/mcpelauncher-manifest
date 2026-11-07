@@ -79,6 +79,13 @@ def network_commands(config):
     return [hide, rpc('__builtin__', 'eval', [start]), ready]
 
 
+def install_network_sources(installed):
+    """Install the plain-source pack adapter; it runs before joining, ahead of pack loading."""
+    adapter = installed/'network_plain_sources.py'
+    shutil.copy2(Path(__file__).with_name('netease_network_sources.py'), adapter)
+    return rpc('__builtin__', 'execfile', [str(adapter), {'PACK_CACHE': str(installed/'packcache')}])
+
+
 def network_policy(host, port):
     import socket
     import ipaddress
@@ -205,6 +212,9 @@ def prepare(args):
     from netease_cppconfig import with_installed_packs
     if getattr(args, 'server_target', None):
         commands = network_commands(config)
+        # The developer APK's MCP importer only resolves .mcs; let server-delivered
+        # plain-source packs import, leaving every packed .mcp to the game.
+        commands.insert(1, install_network_sources(installed))
     else:
         config = with_installed_packs(config, resources, behaviors)
         commands = [] if args.online else world_commands(data, config)

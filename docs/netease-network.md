@@ -26,6 +26,18 @@ world.join_world(host, port, 'Development server',
 
 离线单人世界保留原网络策略。联机在 Seatbelt 中放行目标 UDP 端口及 DNS；localhost 目标限制为 loopback，其他目标按端口放行（Seatbelt 此过滤器不接受任意 IP，因此并非目的主机白名单）。默认不放行外部 HTTP 下载。资源包 CDN、服务器跨端口 transfer、公网认证和其他服务端版本没有验收。
 
+## 服务器下发的明文源码包
+
+开发 APK 把服务器下发的包解压到数据目录 `games/com.netease/packcache/<哈希>/`。正式 `.mcp` 包的导入路径是 `.mcp` 文件本身，由游戏 MCP importer 加载；该 importer 只解析 `.mcs`，所以开发服直接下发的明文 `.py` 行为包会 ImportError。
+
+运行包 0.4.8 起（`network_plain_source_protocol=1`），网络会话在进服前通过客户端 Python 通道安装 `netease_network_sources.py`：
+
+- 只接管本会话 `packcache` 下整包不含 `.mcp`/`.mcs`/`.pyc`/`.pyo` 且有 `manifest.json` 的包；含打包文件的包、混合包和其他路径全部交给游戏 importer。
+- 用解释器原生 `imp` 加载源码，不写 `.pyc`，拒绝链接越出包目录；不替换服务器下发内容，也不读取本机源码目录。
+- 首次从某个包加载时输出 `[PlainSourcePack] Loaded plain sources for <名称> <UUID> <版本>`，`sys._mcpy_plain_source_packs` 保存已加载包。
+
+这只用于开发服测试：正式客户端仍只接受审核后的 `.mcp`，明文包能运行不代表可以发布。`packcache` 位置在 3.9.100.297020 实测；其他游戏版本路径不同时适配器不接管任何包，不影响 MCP 加载。
+
 ## 隔离服务端
 
 工作目录：`build-macos-arm64/network-investigation`（忽略于 Git）。CodeFunCore 原工作区未改动；使用各仓库 HEAD 的归档，包括 build-logic 和 Nukkit 语言子模块。主要源码版本保存在 `server-source/SOURCE_STATE.json`。
