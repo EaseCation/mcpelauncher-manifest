@@ -144,7 +144,7 @@ def main():
         ';-DCMAKE_OSX_ARCHITECTURES=arm64;-DOPENSSL_USE_STATIC_LIBS=TRUE']
     with (work / 'client-build.log').open('w') as log:
         run(config, env=env, stdout=log, stderr=subprocess.STDOUT)
-        run(['cmake', '--build', build, '--target', 'mcpelauncher-client', 'libc-compat-smoke',
+        run(['cmake', '--build', build, '--target', 'mcpelauncher-client', 'libc-compat-smoke', 'libc-host-info-test',
              'netease-auth-bridge-test', 'ipc-large-write', 'developer-screenshot-test',
              '--parallel', str(args.jobs)], env=env, stdout=log, stderr=subprocess.STDOUT)
     run(['ctest', '--test-dir', build, '--output-on-failure'])
