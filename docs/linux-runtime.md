@@ -93,3 +93,11 @@ wlr-randr --output HEADLESS-1 --custom-mode 1280x720
 
 未开启 linger 时，最后一个 SSH 会话结束会回收运行目录，合成器随之退出，之后的启动表现为
 `glfwInit error: Failed to detect any supported platform`。需要查看画面时可再运行 `wayvnc`。
+
+## 已验证环境
+
+树莓派 5（Debian 13、16 KiB 页内核 6.18、V3D 7.1 / Mesa 26.2、无头 Wayland），开发者 APK
+3.10.100.301421：库与 JNI 探针、离线世界及双端 Mod 系统、Python 热更、JSON UI 重载请求、截图、
+保存退出、Tracy 采集，以及连接本机 Nemisys/Nukkit 测试服并加载下发的 `.mcp` 与明文源码包。
+CI 在 ubuntu-22.04-arm 构建的 glibc 2.35 版本也在同一设备上运行验证。主循环约 62 帧/秒
+（受垂直同步限制）。其他 GPU 驱动、X11 桌面与 4 KiB 页内核尚未实机验证。
