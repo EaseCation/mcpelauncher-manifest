@@ -1,9 +1,9 @@
-name: mcpy macOS runtime
+name: mcpy native runtime
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: Immutable runtime version (e.g. 0.4.0-preview.1)
+        description: Immutable runtime version (e.g. 0.5.0-preview.1)
         required: true
         type: string
       source_ref:
@@ -11,8 +11,16 @@ on:
         required: false
         default: ''
         type: string
+      platforms:
+        description: Runtimes to build; a published release contains exactly these platforms
+        type: choice
+        options:
+          - all
+          - macos-arm64
+          - linux-arm64
+        default: all
       profile:
-        description: Default developer APK profile
+        description: Default developer APK profile embedded into the macOS runtime
         type: choice
         options:
           - '3.10'
@@ -23,17 +31,16 @@ on:
         type: boolean
         default: true
       publish:
-        description: Publish the runtime and corresponding source
+        description: Publish the runtimes and corresponding source
         type: boolean
         default: false
 permissions:
   contents: read
 jobs:
-  runtime:
+  macos:
+    if: inputs.platforms == 'all' || inputs.platforms == 'macos-arm64'
     runs-on: macos-15
     timeout-minutes: 60
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,7 +67,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: mcpy-runtime-build-logs
+          name: mcpy-runtime-macos-build-logs
           path: |
             build-macos-arm64/portable/*-build.log
             build-macos-arm64/portable/client/CMakeFiles/CMakeConfigureLog.yaml
@@ -74,8 +81,71 @@ jobs:
           name: mcpy-macos-arm64-${{ inputs.version }}
           path: build-macos-arm64/release/
           if-no-files-found: error
+
+  linux:
+    if: inputs.platforms == 'all' || inputs.platforms == 'linux-arm64'
+    # Oldest supported glibc baseline; the build audit rejects newer GLIBC symbol versions.
+    runs-on: ubuntu-22.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare build tools and headers
+        run: |
+          test "$(uname -m)" = aarch64
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang-15 lld-15 cmake ninja-build pkg-config perl make file \
+            zlib1g-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxkbcommon-dev \
+            libwayland-dev wayland-protocols libegl-dev libgles-dev libgl-dev libdrm-dev libgbm-dev libudev-dev \
+            libevdev-dev libpulse-dev libasound2-dev
+      - name: Test launcher adapters
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Build and audit portable runtime
+        env:
+          CC: clang-15
+          CXX: clang++-15
+        run: python3 tools/build_linux_runtime.py --minimum-glibc 2.35 --profile tools/linux_runtime_profile.json --output build-linux-arm64/McpyRuntime
+      - name: Preserve build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcpy-runtime-linux-build-logs
+          path: |
+            build-linux-arm64/portable/*-build.log
+            build-linux-arm64/portable/client/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
+      - name: Assemble runtime, corresponding source and catalog
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: python3 tools/package_macos_release.py --runtime build-linux-arm64/McpyRuntime --version "$RELEASE_VERSION" --output build-linux-arm64/release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mcpy-linux-arm64-${{ inputs.version }}
+          path: build-linux-arm64/release/
+          if-no-files-found: error
+
+  publish:
+    needs: [macos, linux]
+    # Runs after every selected platform succeeded; unselected platforms are skipped and absent.
+    if: ${{ inputs.publish && !cancelled() && !contains(needs.*.result, 'failure') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mcpy-*-${{ inputs.version }}
+          path: release
+          merge-multiple: true
       - name: Publish immutable release
-        if: inputs.publish
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_VERSION: ${{ inputs.version }}
@@ -86,6 +156,7 @@ jobs:
             echo 'Release already exists. Use a new version; assets are immutable.' >&2
             exit 1
           fi
+          ls -la release
           flags=()
           if [ "$PRERELEASE" = true ]; then flags+=(--prerelease); fi
-          gh release create "$tag" build-macos-arm64/release/* --repo "$GITHUB_REPOSITORY" --target "$(git rev-parse HEAD)" "${flags[@]}" --title "mcpy macOS runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md
+          gh release create "$tag" release/* --repo "$GITHUB_REPOSITORY" --target "$(git rev-parse HEAD)" "${flags[@]}" --title "mcpy native runtime $RELEASE_VERSION" --notes-file docs/runtime-release-notes.md

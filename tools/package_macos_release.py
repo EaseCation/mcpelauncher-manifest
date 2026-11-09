@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Create a game-free runtime archive, catalog and recursive Git source snapshot.
 
-Nothing is uploaded. Relative catalog URLs work both in a local directory and
+Handles both the macOS (McpyRuntime.app) and AArch64 Linux (McpyRuntime) layouts; the
+platform comes from the runtime's own runtime.json. Nothing is uploaded. Relative catalog URLs work both in a local directory and
 next to an immutable GitHub Release catalog.json.
 """
 import argparse
@@ -108,32 +109,41 @@ def main():
         raise ValueError('Runtime inventory changed; rebuild before packaging')
     for name, expected in integrity['files'].items():
         if sha(app/name) != expected: raise ValueError('Runtime checksum mismatch: ' + name)
-    meta = json.loads((app/'Contents/Resources/runtime.json').read_text())
+    metadata = app/'Contents/Resources/runtime.json'
+    if not metadata.is_file(): metadata = app/'resources/runtime.json'
+    meta = json.loads(metadata.read_text())
     if meta.get('launch_protocol') != 1: raise ValueError('Rebuild runtime with bundled launcher adapter')
+    layouts = {'darwin-arm64': ('macos-arm64', 'McpyRuntime.app', 'minimum_macos', ''),
+               'linux-arm64': ('linux-arm64', 'McpyRuntime', 'minimum_glibc', '-linux-arm64')}
+    if meta.get('platform') not in layouts: raise ValueError('Unsupported runtime platform')
+    tag, root, minimum_key, suffix = layouts[meta['platform']]
+    if app.name != root: raise ValueError('Runtime directory must be named ' + root)
     out.mkdir(parents=True)
-    archive = out/('mcpy-runtime-' + args.version + '-macos-arm64.tar.gz')
-    integrity['runtime'] = 'McpyRuntime.app'
+    archive = out/('mcpy-runtime-' + args.version + '-' + tag + '.tar.gz')
+    integrity['runtime'] = root
     with archive.open('wb') as f, gzip.GzipFile(filename='', mode='wb', fileobj=f, mtime=0) as gz, tarfile.open(fileobj=gz, mode='w') as tar:
         for path in [app, *sorted(app.rglob('*'))]:
             if path.is_symlink(): raise ValueError('Runtime links are not supported')
             relative = path.relative_to(app)
-            name = 'McpyRuntime.app' + ('/' + relative.as_posix() if str(relative) != '.' else '')
+            name = root + ('/' + relative.as_posix() if str(relative) != '.' else '')
             if path.is_dir():
                 info = tarfile.TarInfo(name); info.type = tarfile.DIRTYPE; info.mode = 0o755; tar.addfile(info)
             else:
                 if path.suffix in ('.apk', '.mcp', '.mcs') or path.name == 'libminecraftpe.so': raise ValueError('Game content in runtime')
                 add_bytes(tar, name, path.read_bytes(), path.stat().st_mode & 0o755)
         add_bytes(tar, 'McpyRuntime.integrity.json', (json.dumps(integrity, indent=2)+'\n').encode())
-    sources = out/('mcpy-runtime-' + args.version + '-sources.tar.gz')
+    # macOS 保持原有资产名；Linux 资产带平台后缀，可与 macOS 放在同一个不可变 Release。
+    sources = out/('mcpy-runtime-' + args.version + suffix + '-sources.tar.gz')
     state = export_sources(sources)
-    catalog = {'schema': 1, 'apk_source': 'netease-pe', 'runtime': {'id': 'macos-arm64-' + args.version, 'platform': 'darwin-arm64',
-               'minimum_macos': meta['minimum_macos'], 'archive_root': 'McpyRuntime.app',
+    catalog = {'schema': 1, 'apk_source': 'netease-pe', 'runtime': {'id': tag + '-' + args.version, 'platform': meta['platform'],
+               minimum_key: meta[minimum_key], 'archive_root': root,
                'url': archive.name, 'size': archive.stat().st_size, 'sha256': sha(archive)},
                'profile': meta['game_profile'], 'source': {'url': sources.name, 'size': sources.stat().st_size,
                'sha256': sha(sources), 'root_commit': state['root_commit']}}
-    (out/'catalog.json').write_text(json.dumps(catalog, indent=2)+'\n')
-    (out/'SHA256SUMS').write_text(''.join(sha(x)+'  '+x.name+'\n' for x in [archive, sources, out/'catalog.json']))
-    print(json.dumps({'catalog': str(out/'catalog.json'), 'runtime': str(archive), 'source': str(sources)}, indent=2))
+    catalog_path = out/('catalog' + suffix + '.json')
+    catalog_path.write_text(json.dumps(catalog, indent=2)+'\n')
+    (out/('SHA256SUMS' + suffix)).write_text(''.join(sha(x)+'  '+x.name+'\n' for x in [archive, sources, catalog_path]))
+    print(json.dumps({'catalog': str(catalog_path), 'runtime': str(archive), 'source': str(sources)}, indent=2))
 
 
 if __name__ == '__main__': main()

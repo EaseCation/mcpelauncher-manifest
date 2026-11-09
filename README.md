@@ -1,7 +1,7 @@
-# EaseCation macOS developer runtime fork
+# EaseCation macOS / Linux developer runtime fork
 
-This public fork adds an Apple Silicon macOS runtime for the supported NetEase
-Minecraft developer APK. The original launcher and third-party license notices
+This public fork adds Apple Silicon macOS and AArch64 Linux runtimes for the
+supported NetEase Minecraft developer APK. The original launcher and third-party license notices
 are retained. Game APKs, libraries, assets, accounts and worlds are not included.
 
 ```sh
@@ -18,7 +18,11 @@ See [fork layout](docs/fork-layout.md), [runtime packaging](docs/mcpy-runtime-re
 [3.10 profile](docs/netease-3.10.md). Cross-version recognition is described in
 [structural compatibility](docs/automatic-binary-compatibility.md).
 
-The build requires Apple Silicon, Xcode command-line tools, Python, CMake and
+The AArch64 Linux runtime is built with `tools/build_linux_runtime.py`; see
+[Linux runtime](docs/linux-runtime.md) for requirements, the in-process network
+guard and headless testing.
+
+The macOS build requires Apple Silicon, Xcode command-line tools, Python, CMake and
 Ninja. The built runtime does not require Homebrew or another installed Launcher.
 Online authentication experiments under `tools/netease_auth` are optional and
 not part of the offline build; their Dart dependency is a separately supplied

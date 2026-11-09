@@ -1,0 +1,17 @@
+{
+  "id": "netease-dev-3.10.100.301421-arm64",
+  "package_name": "com.netease.mctest",
+  "apk": {
+    "version": "3.10.100.301421",
+    "filename": "dev_launcher_3.10.100.301421.apk",
+    "size": 1856835115,
+    "sha256": "18b492736ffe719f912e5045861853ac84d76daf7781d0633f7c52695eb48376"
+  },
+  "unpacked_size": 3009076976,
+  "file_count": 35628,
+  "files": {
+    "AndroidManifest.xml": "944f650a758ace0376fa044cd9d99804365543cce37ec884b69437bb8cd34286",
+    "lib/arm64-v8a/libminecraftpe.so": "23d5093d53989395177578e267f61973eb6fdd9867bcf01ddc28e887945dca3e",
+    "assets/assets/vanilla.mcp": "7583c5f6c8a3c7d8781e7f2b355a161f03a944e2f31c238c2ff60c469088090b"
+  }
+}

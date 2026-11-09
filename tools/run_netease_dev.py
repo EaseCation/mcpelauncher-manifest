@@ -22,7 +22,26 @@ sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = ROOT / 'build-macos-arm64/netease-dev'
-BUNDLED_RUNTIME = Path(__file__).resolve().parents[3] if (Path(__file__).resolve().parents[2]/'MacOS/mcpelauncher-client').is_file() else None
+LINUX = sys.platform.startswith('linux')
+
+
+def _bundled_runtime():
+    here = Path(__file__).resolve()
+    # macOS: McpyRuntime.app/Contents/Resources/launcher；Linux: McpyRuntime/resources/launcher
+    if (here.parents[2]/'MacOS/mcpelauncher-client').is_file():
+        return here.parents[3]
+    if (here.parents[2]/'bin/mcpelauncher-client').is_file():
+        return here.parents[2]
+    return None
+
+
+BUNDLED_RUNTIME = _bundled_runtime()
+
+
+def runtime_client(runtime):
+    runtime = Path(runtime)
+    linux = runtime/'bin/mcpelauncher-client'
+    return linux if LINUX or linux.is_file() else runtime/'Contents/MacOS/mcpelauncher-client'
 POLICY = '(version 1) (allow default) (deny network*) (allow network* (local unix-socket) (remote unix-socket))'
 DEBUG_POLICY = POLICY + ' (allow network-bind (local ip "localhost:*")) (allow network-inbound (local ip "localhost:*")) (allow network-outbound (remote ip "localhost:*"))'
 
@@ -162,8 +181,10 @@ def prepare(args):
     game, data, cache, client, angle = (p.resolve() for p in (args.game_dir, args.data_dir, args.cache_dir, args.client, args.angle_dir))
     if args.apk:
         extract_apk(args.apk, game)
-    for p in [client, angle/'libEGL.dylib', angle/'libGLESv2.dylib', game/'AndroidManifest.xml',
-              game/'lib/arm64-v8a/libminecraftpe.so', game/'assets/assets/vanilla.mcp']:
+    required = [client, game/'AndroidManifest.xml', game/'lib/arm64-v8a/libminecraftpe.so', game/'assets/assets/vanilla.mcp']
+    if not LINUX:
+        required += [angle/'libEGL.dylib', angle/'libGLESv2.dylib']
+    for p in required:
         if not p.is_file():
             raise ValueError('missing required file: ' + str(p))
     data.mkdir(parents=True, exist_ok=True)
@@ -229,13 +250,30 @@ def prepare(args):
     return game, data, cache, client, angle, commands
 
 
+def linux_network_allowances(host, port):
+    import socket
+    addresses = sorted({entry[4][0] for entry in socket.getaddrinfo(host, port, type=socket.SOCK_DGRAM)})
+    if not addresses: raise ValueError('Server address could not be resolved')
+    return ['udp:' + ('[' + a + ']' if ':' in a else a) + ':' + str(port) for a in addresses]
+
+
 def launch_command(game, data, cache, client, angle, commands, session=None, debug_loopback=False, angle_backend=None, server_target=None, background=False):
-    policy = network_policy(*server_target) if server_target else (DEBUG_POLICY if debug_loopback else POLICY)
-    command = ([] if session else ['/usr/bin/sandbox-exec', '-p', policy]) + ['/usr/bin/env', 'MCPY_GAME_BACKGROUND=' + ('1' if background else '0'), 'DYLD_LIBRARY_PATH='+str(angle)]
-    if angle_backend:
-        command += ['ANGLE_DEFAULT_PLATFORM='+angle_backend]
-    command += [str(client), '--netease-dev', '--force-opengles', '--game-dir', str(game),
-               '--data-dir', str(data), '--cache-dir', str(cache)]
+    if LINUX:
+        # Linux 没有 seatbelt；离线与无认证联机由启动器进程内网络守卫约束游戏代码。
+        command = ['/usr/bin/env', 'MCPY_GAME_BACKGROUND=' + ('1' if background else '0'),
+                   str(client), '--netease-dev', '--force-opengles', '--game-dir', str(game),
+                   '--data-dir', str(data), '--cache-dir', str(cache)]
+        if not session:
+            command.append('--netease-network-guard')
+            for allowance in (linux_network_allowances(*server_target) if server_target else []):
+                command += ['--netease-network-allow', allowance]
+    else:
+        policy = network_policy(*server_target) if server_target else (DEBUG_POLICY if debug_loopback else POLICY)
+        command = ([] if session else ['/usr/bin/sandbox-exec', '-p', policy]) + ['/usr/bin/env', 'MCPY_GAME_BACKGROUND=' + ('1' if background else '0'), 'DYLD_LIBRARY_PATH='+str(angle)]
+        if angle_backend:
+            command += ['ANGLE_DEFAULT_PLATFORM='+angle_backend]
+        command += [str(client), '--netease-dev', '--force-opengles', '--game-dir', str(game),
+                   '--data-dir', str(data), '--cache-dir', str(cache)]
     if session:
         command += ['--netease-session', str(session)]
     for call in commands:
@@ -272,8 +310,10 @@ def main():
     parser.add_argument('--background', action='store_true', help='Show the game without activating it or grabbing the cursor')
     parser.add_argument('--exec-client', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args()
-    args.client = args.client or args.runtime/'Contents/MacOS/mcpelauncher-client'
+    args.client = args.client or runtime_client(args.runtime)
     args.angle_dir = args.angle_dir or args.runtime/'Contents/Frameworks'
+    if LINUX and (args.angle_backend or args.make_app):
+        parser.error('--angle-backend and --make-app are macOS-only')
     if args.online and args.debug_loopback:
         parser.error('--online and --debug-loopback are mutually exclusive')
     if args.cppconfig and (args.source_addon or args.online or args.commands_json):
@@ -288,7 +328,7 @@ def main():
         os.umask(0o077)
         runtime.mkdir(parents=True, exist_ok=True, mode=0o700)
         runtime.chmod(0o700)
-    if sys.platform != 'darwin' or not shutil.which('sandbox-exec'):
+    if not LINUX and (sys.platform != 'darwin' or not shutil.which('sandbox-exec')):
         parser.error('macOS sandbox-exec is required')
     if not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', args.world_id):
         parser.error('--world-id must be a simple directory name')

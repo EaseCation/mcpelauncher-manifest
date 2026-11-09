@@ -96,5 +96,20 @@ int main() {
     assert(androidMmap(region + page, page, PROT_READ | PROT_WRITE, 0x32, -1, 0) == region + page);
     assert(region[0] == 42 && region[page] == 0);
     assert(::munmap(region, page * 2) == 0);
-    std::puts("PASS: clocks, entropy, semaphores, socket fcntl flags, fixed mmap and errno");
+    // Bionic 调度策略：SCHED_FIFO 不应终止进程；未授权时返回宿主错误，未知策略返回 EINVAL。
+    struct BionicSchedParam { int sched_priority; };
+    auto setSched = reinterpret_cast<int(*)(pthread_t, int, const BionicSchedParam*)>(symbols.at("pthread_setschedparam"));
+    auto getSched = reinterpret_cast<int(*)(pthread_t, int*, BionicSchedParam*)>(symbols.at("pthread_getschedparam"));
+    int originalPolicy = -1;
+    BionicSchedParam original{-1};
+    assert(getSched(::pthread_self(), &originalPolicy, &original) == 0 && originalPolicy == 0);
+    BionicSchedParam fifo{1};
+    int fifoResult = setSched(::pthread_self(), 1, &fifo);
+    assert(fifoResult == 0 || fifoResult == 1 /* EPERM */);
+    assert(setSched(::pthread_self(), 42, &fifo) == 22 /* EINVAL */);
+    assert(setSched(::pthread_self(), originalPolicy, &original) == 0);
+    int policy = -1;
+    BionicSchedParam current{-1};
+    assert(getSched(::pthread_self(), &policy, &current) == 0 && policy == 0);
+    std::puts("PASS: clocks, entropy, semaphores, socket fcntl flags, fixed mmap, scheduling policies and errno");
 }

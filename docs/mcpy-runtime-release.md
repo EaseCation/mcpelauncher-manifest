@@ -1,4 +1,12 @@
-# macOS 运行包发布与本地组装
+# 原生运行包发布与本地组装
+
+macOS 与 AArch64 Linux 运行包共用发布流程。Linux 的运行要求、网络守卫与构建方法见
+[Linux 运行包](linux-runtime.md)；同一版本的 Linux 资产带 `-linux-arm64` 后缀（目录为
+`catalog-linux-arm64.json`），与下文 macOS 资产并存于同一个不可变 Release。
+`.github/workflows/mcpy-runtime.yml` 的 `platforms` 输入选择构建哪些平台，publish 在所有选定平台
+成功后一次性创建 Release。
+
+以下为 macOS 的发布与安装说明。
 
 mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy run`。
 首次运行自动下载原生启动器和网易 pe 当前返回的最新开发者 APK，校验后在本机提取，完成后
