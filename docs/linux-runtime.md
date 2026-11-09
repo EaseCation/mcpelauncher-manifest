@@ -100,4 +100,10 @@ wlr-randr --output HEADLESS-1 --custom-mode 1280x720
 3.10.100.301421：库与 JNI 探针、离线世界及双端 Mod 系统、Python 热更、JSON UI 重载请求、截图、
 保存退出、Tracy 采集，以及连接本机 Nemisys/Nukkit 测试服并加载下发的 `.mcp` 与明文源码包。
 CI 在 ubuntu-22.04-arm 构建的 glibc 2.35 版本也在同一设备上运行验证。主循环约 62 帧/秒
-（受垂直同步限制）。其他 GPU 驱动、X11 桌面与 4 KiB 页内核尚未实机验证。
+（受垂直同步限制）。JSON UI 修改文字与颜色后重载并重建界面，截图与 `GetText` 均为新值。
+
+Ubuntu 22.04.5（glibc 2.35、4 KiB 页内核、X11/Xvfb、Mesa 23.2 llvmpipe 软件渲染，OrbStack
+arm64 虚拟机）：同一 CI 版本从官方频道安装 APK、进入世界、双端 Mod 系统、截图与保存退出。
+
+Wayland 下以后台模式启动时，labwc 仍会激活新游戏窗口；启动器只保证自身不请求聚焦、不抢占指针。
+其他硬件 GPU 驱动与带窗口管理器的 X11 桌面尚未实机验证。

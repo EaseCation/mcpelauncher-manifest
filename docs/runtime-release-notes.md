@@ -28,8 +28,11 @@ headless Wayland) with developer APK 3.10.100.301421: installation from the
 official APK channel, offline worlds with addon systems on both sides, Python
 hot reload, JSON UI reload requests, screenshots, save-before-exit, Tracy
 capture, and an unauthenticated join to a Nemisys/Nukkit test server with
-server-delivered `.mcp` and plain-source packs. The glibc 2.35 build from CI
-was run on the same device.
+server-delivered `.mcp` and plain-source packs. JSON UI edits reloaded in the
+same world showed the new text and colour after recreating the screen. The
+glibc 2.35 build from CI ran on the same device and on Ubuntu 22.04.5 (4 KiB
+pages, X11 with Mesa llvmpipe software rendering). On Wayland the compositor
+decides focus: labwc still activates a background-launched game window.
 
 The runtime contains no Minecraft APK, game library/assets, worlds or account
 credentials. The corresponding recursive source archive, licenses and
