@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import Mock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
 from netease_cppconfig import creation_arguments, server_target
-from run_netease_dev import world_commands, network_commands, network_policy, install_network_sources
+from run_netease_dev import world_commands, network_commands, network_policy, install_network_sources, checked_identity
 
 
 class BridgeTests(unittest.TestCase):
@@ -80,6 +80,38 @@ class BridgeTests(unittest.TestCase):
                        {'user_id': '1', 'user_name': 'a'}, {'user_id': 1, 'user_name': 'a' * 17}):
             with self.assertRaises(ValueError):
                 network_commands({'world_info': None, 'room_info': {'ip': 'localhost', 'port': 1}, 'player_info': player})
+
+    def local_identity(self, identity=None):
+        with tempfile.TemporaryDirectory() as root:
+            recipe = world_commands(Path(root), self.config(), identity)
+        world, application = Mock(), Mock()
+        world.create_world.return_value = True; world.set_world_info.return_value = True
+        with patch.dict(sys.modules, world=world, application=application, engine_notify_handler=Mock()):
+            eval(recipe[1]['args'][0])
+        return application.instance.InitOfflinePlayer.call_args.args, world.play_world.call_args.args[4]
+
+    def test_local_world_keeps_local_dev_without_identity(self):
+        offline, played = self.local_identity()
+        self.assertEqual(offline, (0, 'LocalDev'))
+        self.assertEqual(played, {'user_name': 'LocalDev', 'user_id': '0'})
+
+    def test_local_world_uses_requested_identity_including_chinese_names(self):
+        for identity in ((1320730727, 'Steve_1'), (235959316, '测试玩家')):
+            offline, played = self.local_identity(identity)
+            self.assertEqual(offline, identity)
+            self.assertEqual(played, {'user_name': identity[1], 'user_id': str(identity[0])})
+
+    def test_network_accepts_chinese_developer_identity(self):
+        config = {'world_info': None, 'room_info': {'ip': 'localhost', 'port': 1},
+                  'player_info': {'user_id': 235959316, 'urs': '', 'user_name': '测试玩家'}}
+        offline, joined = self.network_identity(config)
+        self.assertEqual(offline, (235959316, '测试玩家'))
+        self.assertEqual(joined, {'user_name': '测试玩家', 'user_id': '235959316'})
+
+    def test_identity_rejects_quotes_whitespace_and_other_scripts(self):
+        for name in ('中 文', '中"', "中'", 'é', '测' * 17, ''):
+            with self.assertRaises(ValueError):
+                checked_identity(1, name)
 
     def test_network_installs_plain_source_adapter_for_session_pack_cache(self):
         with tempfile.TemporaryDirectory() as directory:

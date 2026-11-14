@@ -1,30 +1,35 @@
-0.4.10 stops every world instance and network session from keeping its own
-~400 MB copy of the game's built-in assets. Use mcpywrap 0.7.6, which selects
-this runtime by default for fresh installations and also clones `vanilla.mcp`
-into new data directories.
+0.4.11 lets developers choose the offline player name, including Chinese
+nicknames, for local worlds and server connections. Use mcpywrap 0.7.7, which
+selects this runtime by default for fresh installations and adds
+`--player-name` to `run`, `connect` and `--clients 2`.
 
-On the first launch of each data directory the game asks the launcher, through
-`copyInnerAssetDir`, to copy the `storge/asset` tree out of the extracted APK.
-The launcher did a plain recursive copy, so every instance stored an identical
-copy of the shared engine's assets. Regular files are now copy-on-write clones
-(`clonefile` on APFS, `FICLONE` on Linux) with the same merge and overwrite
-behavior. The game can still modify its copy without affecting the shared
-engine. Volumes that cannot clone, such as non-APFS or cross-volume
-destinations, fall back to a normal copy. The engine log reports how many files
-were cloned and copied. Nothing in the launch protocol changes, so no new
-capability is declared.
+Local worlds always started as `LocalDev` with user id 0. The launcher now
+accepts `--player-name` and `--player-id` for offline worlds. These pass the
+identity to `InitOfflinePlayer` and `play_world`, and it is not written to the
+instance cppconfig. Without them a world still starts as `LocalDev`. Network
+sessions keep taking the identity from cppconfig `player_info`. Combining
+`--player-name` with a network session or a custom command list is rejected.
 
-Validated on Apple Silicon / macOS 26.6.2 / developer APK 3.10.100.301421: a
-fresh data directory logged `cloned 132, copied 0`. Deleting the resulting 406
-MB `storge` tree freed 104 KB of disk space, compared with 26 MB for a plainly
-copied `vanilla.mcp`.
+Names may now contain Chinese characters as well as letters, digits and
+underscores, up to 16 characters. Quotes, whitespace and control characters are
+still rejected before a name is embedded in a game-side expression. The runtime
+declares `offline_identity_protocol=1`.
 
-This release keeps every capability of 0.4.9 (per-client developer identity,
-plain-source network packs, background window, screenshots, input clock,
-cppconfig, unauthenticated connections and the host interfaces used by the
-built-in Tracy profiler). Existing worlds remain bound to their original
-runtime, and data directories that already hold copied assets are not changed;
-only first launches with this runtime use clones.
+Validated on Apple Silicon / macOS 26.6.2 / developer APK 3.10.100.301421 with a
+fresh local world started as `测试玩家`:
+- The client and the server-side player list both reported that name.
+- After reopening the same world as `Steve_1`, the server reported the new
+  name and the host inventory was preserved.
+
+Unit tests cover the default identity, English and Chinese identities for local
+worlds and network sessions, and the rejected names.
+
+This release keeps every capability of 0.4.10 (copy-on-write first-launch
+assets, per-client developer identity, plain-source network packs, background
+window, screenshots, input clock, cppconfig, unauthenticated connections and the
+host interfaces used by the built-in Tracy profiler). Existing worlds remain
+bound to their original runtime; upgrading the CLI does not silently migrate
+them.
 
 The runtime contains no Minecraft APK, game library/assets, worlds or account
 credentials. The corresponding recursive source archive, licenses and SHA256SUMS

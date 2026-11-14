@@ -31,7 +31,19 @@ def rpc(module, function, args, instance=False):
     return dict(module_name=module, func_name=function, args=args, use_instance=instance)
 
 
-def world_commands(data, config):
+# NetEase accepts Chinese nicknames; names stay free of quotes, whitespace and
+# control characters before they are embedded in game-side expressions.
+PLAYER_NAME = re.compile('[A-Za-z0-9_\u3400-\u4dbf\u4e00-\u9fff]{1,16}')
+
+
+def checked_identity(user_id, user_name):
+    if (type(user_id) is not int or not 0 < user_id < 2**31 or not isinstance(user_name, str)
+            or not PLAYER_NAME.fullmatch(user_name)):
+        raise ValueError('Invalid anonymous developer identity')
+    return user_id, user_name
+
+
+def world_commands(data, config, identity=None):
     from netease_cppconfig import creation_arguments, world_info
     info = world_info(config)
     world_id, world_name = info['level_id'], info['name']
@@ -47,11 +59,13 @@ def world_commands(data, config):
         args, settings = creation_arguments(config)
         create = "(__import__('world').create_world(*" + repr(args) + ") and " \
                  "__import__('world').set_world_info(*" + repr([world_id, settings]) + "))"
+    # Without an explicit identity a local world keeps the historical LocalDev player.
+    user_id, user_name = identity or (0, 'LocalDev')
     play_args = [world_id, world_name, info['resource_packs'], info['behavior_packs'],
-                 {'user_name': 'LocalDev', 'user_id': '0'}, None, {'multiplayer_game_type': 0}, None]
+                 {'user_name': user_name, 'user_id': str(user_id)}, None, {'multiplayer_game_type': 0}, None]
     # Set the complete offline state in a single game-thread dispatch. Spreading
     # these transitions over ticks races the Cocos startup failure callbacks.
-    start = "(__import__('application').instance.InitOfflinePlayer(0, 'LocalDev'), " \
+    start = "(__import__('application').instance.InitOfflinePlayer(" + repr(user_id) + ", " + repr(user_name) + "), " \
             "__import__('engine_notify_handler').instance.set_offline_start('1'), " \
             "__import__('world').play_world(*" + repr(play_args) + "))[-1]"
     if create:
@@ -67,11 +81,7 @@ def developer_identity(config):
     player = config.get('player_info')
     if player is None:
         return 0, 'LocalDev'
-    user_id, user_name = player.get('user_id'), player.get('user_name')
-    if (type(user_id) is not int or not 0 < user_id < 2**31 or not isinstance(user_name, str)
-            or not re.fullmatch(r'[A-Za-z0-9_]{1,16}', user_name)):
-        raise ValueError('Invalid anonymous developer identity')
-    return user_id, user_name
+    return checked_identity(player.get('user_id'), player.get('user_name'))
 
 
 def network_commands(config):
@@ -224,13 +234,16 @@ def prepare(args):
                   'resource_packs': [], 'behavior_packs': []}}
     from netease_cppconfig import with_installed_packs
     if getattr(args, 'server_target', None):
+        if args.player_name is not None:
+            raise ValueError('Network sessions take their identity from cppconfig player_info')
         commands = network_commands(config)
         # The developer APK's MCP importer only resolves .mcs; let server-delivered
         # plain-source packs import, leaving every packed .mcp to the game.
         commands.insert(1, install_network_sources(installed))
     else:
         config = with_installed_packs(config, resources, behaviors)
-        commands = [] if args.online else world_commands(data, config)
+        identity = None if args.player_name is None else checked_identity(args.player_id, args.player_name)
+        commands = [] if args.online else world_commands(data, config, identity)
     if source_roots:
         loader = installed/'developer_source_loader.py'
         shutil.copy2(Path(__file__).with_name('netease_source_loader.py'), loader)
@@ -284,6 +297,8 @@ def main():
     parser.add_argument('--log', type=Path)
     parser.add_argument('--background', action='store_true', help='Show the game without activating it or grabbing the cursor')
     parser.add_argument('--exec-client', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--player-name', help='Anonymous offline identity for a local world (default LocalDev)')
+    parser.add_argument('--player-id', type=int, help='User id paired with --player-name (1..2^31-1)')
     args = parser.parse_args()
     args.client = args.client or args.runtime/'Contents/MacOS/mcpelauncher-client'
     args.angle_dir = args.angle_dir or args.runtime/'Contents/Frameworks'
@@ -291,6 +306,10 @@ def main():
         parser.error('--online and --debug-loopback are mutually exclusive')
     if args.cppconfig and (args.source_addon or args.online or args.commands_json):
         parser.error('--cppconfig is offline-only and owns the addon references and startup sequence')
+    if (args.player_name is None) != (args.player_id is None):
+        parser.error('--player-name and --player-id must be given together')
+    if args.player_name is not None and (args.online or args.commands_json):
+        parser.error('--player-name only applies to offline worlds')
     if args.source_addon and (args.online or args.commands_json):
         parser.error('--source-addon is offline-only and cannot be combined with --commands-json')
     runtime = ROOT/'build-macos-arm64/netease-online' if args.online else ROOT/'build-macos-arm64/netease-metal' if args.angle_backend == 'metal' else ROOT/'build-macos-arm64/netease-debug' if args.debug_loopback else RUNTIME
