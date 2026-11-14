@@ -204,7 +204,7 @@ def main():
         'client_python_protocol': 1, 'json_ui_reload_protocol': 1, 'input_monotonic_clock_protocol': 1,
         'screenshot_protocol': 1, 'background_window_protocol': 1,
         'launch_protocol': 1, 'addon_link_protocol': 1, 'cppconfig_protocol': 1, 'network_connect_protocol': 1,
-        'network_plain_source_protocol': 1,
+        'network_plain_source_protocol': 1, 'developer_identity_protocol': 1,
         'game_compatibility': {'elf_rules_schema': 1, 'package_name': 'com.netease.mctest', 'abi': 'arm64-v8a',
                                'rules_sha256': digest(ROOT/'tools/developer_binary_rules.json')}, 'game_profile': json.loads(args.profile.read_text()),
         'minimum_os_runtime_tested': False, 'signing': 'ad-hoc; not notarized', 'sources': SOURCES,

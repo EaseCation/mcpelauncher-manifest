@@ -62,16 +62,29 @@ def world_commands(data, config):
     return commands
 
 
+def developer_identity(config):
+    """Return the anonymous developer identity; mcpy assigns one per dual-client role."""
+    player = config.get('player_info')
+    if player is None:
+        return 0, 'LocalDev'
+    user_id, user_name = player.get('user_id'), player.get('user_name')
+    if (type(user_id) is not int or not 0 < user_id < 2**31 or not isinstance(user_name, str)
+            or not re.fullmatch(r'[A-Za-z0-9_]{1,16}', user_name)):
+        raise ValueError('Invalid anonymous developer identity')
+    return user_id, user_name
+
+
 def network_commands(config):
     from netease_cppconfig import server_target
     host, port = server_target(config)
+    user_id, user_name = developer_identity(config)
     scene = "getattr(__import__('sys').modules.get('launcher.launcher'), 'base_scene', None)"
     hide = rpc('__builtin__', 'eval', [scene + '.setVisible(False)'])
     hide['wait_for'] = "(lambda scene: bool(scene) and scene.getName() == 'launcher_scene')(" + scene + ")"
     hide['readiness'] = 'python'
-    args = [host, port, 'Development server', {'user_name':'LocalDev','user_id':'0'}, None,
+    args = [host, port, 'Development server', {'user_name': user_name, 'user_id': str(user_id)}, None,
             {'multiplayer_game_type':100}]
-    start = "(__import__('application').instance.InitOfflinePlayer(0, 'LocalDev'), " \
+    start = "(__import__('application').instance.InitOfflinePlayer(" + repr(user_id) + ", " + repr(user_name) + "), " \
             "__import__('engine_notify_handler').instance.set_offline_start('1'), " \
             "__import__('world').join_world(*" + repr(args) + "))[-1]"
     ready = rpc('clientlevel', 'get_level_id', [])

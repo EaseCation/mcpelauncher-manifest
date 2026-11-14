@@ -56,6 +56,31 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(world.join_world.call_args.args[-1], {'multiplayer_game_type': 100})
         self.assertIn('get_level_id', commands[-1]['wait_for'])
 
+    def network_identity(self, config):
+        commands = network_commands(config)
+        world, application = Mock(), Mock()
+        with patch.dict(sys.modules, world=world, application=application, engine_notify_handler=Mock()):
+            eval(commands[1]['args'][0])
+        return application.instance.InitOfflinePlayer.call_args.args, world.join_world.call_args.args[3]
+
+    def test_network_without_player_keeps_single_client_identity(self):
+        offline, joined = self.network_identity({'world_info': None, 'room_info': {'ip': 'localhost', 'port': 1}})
+        self.assertEqual(offline, (0, 'LocalDev'))
+        self.assertEqual(joined, {'user_name': 'LocalDev', 'user_id': '0'})
+
+    def test_network_uses_distinct_developer_identity_from_cppconfig(self):
+        config = {'world_info': None, 'room_info': {'ip': 'localhost', 'port': 1},
+                  'player_info': {'user_id': 16152009, 'urs': '', 'user_name': 'mcpy_c07b3ae0_2'}}
+        offline, joined = self.network_identity(config)
+        self.assertEqual(offline, (16152009, 'mcpy_c07b3ae0_2'))
+        self.assertEqual(joined, {'user_name': 'mcpy_c07b3ae0_2', 'user_id': '16152009'})
+
+    def test_network_rejects_invalid_developer_identity(self):
+        for player in ({'user_id': 0, 'user_name': 'a'}, {'user_id': 1, 'user_name': "x'); evil()#"},
+                       {'user_id': '1', 'user_name': 'a'}, {'user_id': 1, 'user_name': 'a' * 17}):
+            with self.assertRaises(ValueError):
+                network_commands({'world_info': None, 'room_info': {'ip': 'localhost', 'port': 1}, 'player_info': player})
+
     def test_network_installs_plain_source_adapter_for_session_pack_cache(self):
         with tempfile.TemporaryDirectory() as directory:
             installed = Path(directory)/'games/com.netease'

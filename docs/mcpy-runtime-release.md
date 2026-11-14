@@ -5,7 +5,7 @@ mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy ru
 继续启动。交互式 `run` 在终端准备资源后显示紧凑调试小窗；完整管理页和创建确认框通过 `mcpy ui` 使用。
 
 默认目录：
-`https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.8/catalog.json`
+`https://github.com/EaseCation/mcpelauncher-manifest/releases/download/mcpy-runtime-v0.4.9/catalog.json`
 
 该发行以开发者 APK 3.9.100.297020 作为构建和实机验证基线；首次安装实际版本由官方 pe 动态发现。运行包包含 ARM64 兼容、ANGLE Metal、
 源码 Mod、Python 调试、JSON UI 重载、实例 cppconfig 和键盘输入适配。
@@ -14,6 +14,7 @@ mcpy 内置 EaseCation 的固定发行目录，普通用户直接执行 `mcpy ru
 0.4.5 增加按需原生游戏截图（screenshot_protocol=1），配套 mcpywrap 0.5.1；macOS 录屏与视频提帧仍不支持。
 0.4.6 增加后台窗口（background_window_protocol=1），0.4.7 修复开发包内置 Tracy 所需的主机信息接口。
 0.4.8 在网络会话中加载开发服下发的纯明文源码行为包（network_plain_source_protocol=1），配套 mcpywrap 0.6.5；`.mcp` 包仍由游戏原有流程加载。
+0.4.9 联机时使用 mcpy 为每个客户端分配的独立开发身份（developer_identity_protocol=1），支持 `connect --clients 2` 双客户端进入同一服务器，配套 mcpywrap 0.7.5。
 旧安装可显式使用上述 catalog 执行 engine install；已有世界仍固定原运行包。
 不包含 APK、libminecraftpe.so、vanilla.mcp、存档或账号凭据；APK 由 mcpy 直接
 从网易 CDN 获取。首次安装查询 pe，版本检查查询 pe/pe_old，不猜测 CDN 文件名；本地已安装的旧版本继续保留。下载后从 APK 读取实际身份、ARM64 核心与摘要，并进行结构兼容检查，通过后才选择。

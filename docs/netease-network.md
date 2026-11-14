@@ -20,6 +20,8 @@ world.join_world(host, port, 'Development server',
                  {'multiplayer_game_type': 100})
 ```
 
+0.4.9 起，cppconfig 带有 mcpy 写入的 `player_info`（`user_id` 为 1–2³¹−1 的整数，`user_name` 为 1–16 位字母、数字或下划线）时，`InitOfflinePlayer` 与 `join_world` 改用该身份；没有该字段时仍为 `LocalDev`/`0`，单客户端行为不变。字段不合法时启动前拒绝，不拼入游戏侧求值字符串。运行包以 `developer_identity_protocol=1` 声明此能力，mcpy 据此允许 `connect --clients 2`；两名玩家名称与 UUID 不同，服务器不会因同名或同 UUID 顶号。
+
 不获取 MPay/MCS 身份。相同模块和参数结构见 3.5 Python 逻辑，已在 3.10 动态验证；未来版本仍需要实际就绪结果，不能仅凭入口名称存在承诺兼容。
 
 网络会话复用 mcpy worker、日志、客户端 Python、偏好和退出机制，每次连接使用独立会话目录，不创建世界实例、不组装项目 Mod。`connection_verified=true` 表示曾观察到 HUD，并非持续探活。初次连接 90 秒没有进入 HUD 会报告失败、关闭进程并保留日志。
